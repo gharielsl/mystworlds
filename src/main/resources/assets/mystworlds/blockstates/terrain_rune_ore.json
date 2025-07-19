@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "mystworlds:block/terrain_rune_ore"
+    }
+  }
+}

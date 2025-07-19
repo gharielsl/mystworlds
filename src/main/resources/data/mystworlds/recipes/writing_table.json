@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " #$",
+    "___",
+    "/ /"
+  ],
+  "key": {
+    "/": {
+      "item": "minecraft:stick"
+    },
+    "_": {
+      "item": "minecraft:oak_slab"
+    },
+    "#": {
+      "item": "minecraft:light_gray_carpet"
+    },
+    "$": {
+      "item": "minecraft:feather"
+    }
+  },
+  "result": {
+    "item": "mystworlds:writing_table"
+  }
+}

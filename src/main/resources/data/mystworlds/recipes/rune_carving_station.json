@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "$#$",
+    "___",
+    "/R/"
+  ],
+  "key": {
+    "/": {
+      "item": "minecraft:stick"
+    },
+    "_": [
+      {
+        "item": "minecraft:cobbled_deepslate"
+      },
+      {
+        "item": "minecraft:deepslate"
+      }
+    ],
+    "#": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "$": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "mystworlds:rune_carving_station"
+  }
+}

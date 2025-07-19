@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "mystworlds:terrain_rune_ore",
+    "mystworlds:sky_rune_ore",
+    "mystworlds:time_rune_ore",
+    "mystworlds:stability_rune_ore"
+  ]
+}

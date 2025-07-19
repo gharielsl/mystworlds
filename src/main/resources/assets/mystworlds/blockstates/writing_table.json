@@ -1,0 +1,68 @@
+{
+    "multipart": [
+        {
+            "when": { "part": "left", "facing": "north", "ink": "false" },
+            "apply": { "model": "mystworlds:block/writing_table_left", "y": 0 }
+        },
+        {
+            "when": { "part": "left", "facing": "east", "ink": "false" },
+            "apply": { "model": "mystworlds:block/writing_table_left", "y": 90 }
+        },
+        {
+            "when": { "part": "left", "facing": "south", "ink": "false" },
+            "apply": { "model": "mystworlds:block/writing_table_left", "y": 180 }
+        },
+        {
+            "when": { "part": "left", "facing": "west", "ink": "false" },
+            "apply": { "model": "mystworlds:block/writing_table_left", "y": 270 }
+        },
+        {
+            "when": { "part": "left", "facing": "north", "ink": "true" },
+            "apply": { "model": "mystworlds:block/writing_table_left_ink", "y": 0 }
+        },
+        {
+            "when": { "part": "left", "facing": "east", "ink": "true" },
+            "apply": { "model": "mystworlds:block/writing_table_left_ink", "y": 90 }
+        },
+        {
+            "when": { "part": "left", "facing": "south", "ink": "true" },
+            "apply": { "model": "mystworlds:block/writing_table_left_ink", "y": 180 }
+        },
+        {
+            "when": { "part": "left", "facing": "west", "ink": "true" },
+            "apply": { "model": "mystworlds:block/writing_table_left_ink", "y": 270 }
+        },
+        {
+            "when": { "part": "right", "facing": "north", "paper": "false" },
+            "apply": { "model": "mystworlds:block/writing_table_right", "y": 0 }
+        },
+        {
+            "when": { "part": "right", "facing": "east", "paper": "false" },
+            "apply": { "model": "mystworlds:block/writing_table_right", "y": 90 }
+        },
+        {
+            "when": { "part": "right", "facing": "south", "paper": "false" },
+            "apply": { "model": "mystworlds:block/writing_table_right", "y": 180 }
+        },
+        {
+            "when": { "part": "right", "facing": "west", "paper": "false" },
+            "apply": { "model": "mystworlds:block/writing_table_right", "y": 270 }
+        },
+        {
+            "when": { "part": "right", "facing": "north", "paper": "true" },
+            "apply": { "model": "mystworlds:block/writing_table_right_paper", "y": 0 }
+        },
+        {
+            "when": { "part": "right", "facing": "east", "paper": "true" },
+            "apply": { "model": "mystworlds:block/writing_table_right_paper", "y": 90 }
+        },
+        {
+            "when": { "part": "right", "facing": "south", "paper": "true" },
+            "apply": { "model": "mystworlds:block/writing_table_right_paper", "y": 180 }
+        },
+        {
+            "when": { "part": "right", "facing": "west", "paper": "true" },
+            "apply": { "model": "mystworlds:block/writing_table_right_paper", "y": 270 }
+        }
+    ]
+}
