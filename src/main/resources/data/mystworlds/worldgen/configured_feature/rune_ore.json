@@ -1,0 +1,48 @@
+{
+  "type": "minecraft:ore",
+  "config": {
+    "discard_chance_on_air_exposure": 0,
+    "size": 9,
+    "targets": [
+      {
+        "target": {
+          "predicate_type": "minecraft:random_block_match",
+          "block": "minecraft:stone",
+          "probability": 0.25
+        },
+        "state": {
+          "Name": "mystworlds:time_rune_ore"
+        }
+      },
+      {
+        "target": {
+          "predicate_type": "minecraft:random_block_match",
+          "block": "minecraft:stone",
+          "probability": 0.25
+        },
+        "state": {
+          "Name": "mystworlds:stability_rune_ore"
+        }
+      },
+      {
+        "target": {
+          "predicate_type": "minecraft:random_block_match",
+          "block": "minecraft:stone",
+          "probability": 0.25
+        },
+        "state": {
+          "Name": "mystworlds:sky_rune_ore"
+        }
+      },
+      {
+        "state": {
+          "Name": "mystworlds:terrain_rune_ore"
+        },
+        "target": {
+          "predicate_type": "minecraft:tag_match",
+          "tag": "minecraft:stone_ore_replaceables"
+        }
+      }
+    ]
+  }
+}

@@ -4,6 +4,7 @@ import com.gharielsl.mystworlds.age.AgeManager;
 import com.gharielsl.mystworlds.age.AgeState;
 import com.gharielsl.mystworlds.screen.overlay.ScreenshotOverlay;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -168,33 +169,40 @@ public class MemoryStoneItem extends Item {
         }
 
         mc.execute(() -> {
+            boolean oldHideGui = mc.options.hideGui;
+            mc.options.hideGui = true;
+            queueNextFrameScreenshot(mc, out, consumer, oldHideGui);
+        });
+    }
+
+    private static void queueNextFrameScreenshot(Minecraft mc, Path out, AgeScreenshotConsumer consumer, boolean oldHideGui) {
+        RenderSystem.recordRenderCall(() -> {
             try {
                 NativeImage image = Screenshot.takeScreenshot(mc.getMainRenderTarget());
 
                 int screenshotWidth = 560;
                 int screenshotHeight = 250;
-
-                NativeImage croppedImage = new NativeImage(NativeImage.Format.RGBA, screenshotWidth, screenshotHeight, false);
+                NativeImage cropped = new NativeImage(NativeImage.Format.RGBA, screenshotWidth, screenshotHeight, false);
 
                 int offsetX = (image.getWidth() - screenshotWidth) / 2;
                 int offsetY = (image.getHeight() - screenshotHeight) / 2;
 
                 for (int y = 0; y < screenshotHeight; y++) {
                     for (int x = 0; x < screenshotWidth; x++) {
-                        int color = image.getPixelRGBA(x + offsetX, y + offsetY);
-                        croppedImage.setPixelRGBA(x, y, color);
+                        cropped.setPixelRGBA(x, y, image.getPixelRGBA(x + offsetX, y + offsetY));
                     }
                 }
 
-                croppedImage.writeToFile(out.toFile());
-
-                image.close();
-                croppedImage.close();
-
+                cropped.writeToFile(out.toFile());
                 consumer.onComplete(true);
+
+                cropped.close();
+                image.close();
             } catch (Exception e) {
                 e.printStackTrace();
                 consumer.onComplete(false);
+            } finally {
+                mc.options.hideGui = oldHideGui;
             }
         });
     }

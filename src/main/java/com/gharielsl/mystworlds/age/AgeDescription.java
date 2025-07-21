@@ -6,19 +6,22 @@ import com.gharielsl.mystworlds.item.RuneItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AgeDescription {
-    public static final int SKY_CLEAR = 1;
-    public static final int SKY_RAIN = 2;
-    public static final int SKY_STORM = 3;
-    public static final int SKY_NORMAL = 4;
-    public static final int SKY_CHAOS = 5;
+    public static final int WEATHER_CLEAR = 1;
+    public static final int WEATHER_RAIN = 2;
+    public static final int WEATHER_STORM = 3;
+    public static final int WEATHER_NORMAL = 4;
+    public static final int WEATHER_CHAOS = 5;
 
     public static final int TIME_DAY = 1;
     public static final int TIME_NIGHT = 2;
@@ -27,7 +30,8 @@ public class AgeDescription {
 
     private String ageName;
     private int sky;
-    private int time;
+    private int weather = WEATHER_NORMAL;
+    private int time = TIME_NORMAL;
     private int fireAmount;
     private int liquidY = 0;
     private int explosionAmount;
@@ -40,6 +44,9 @@ public class AgeDescription {
     private boolean isLava = false;
     private int bottomBedrockLayers = 0;
     private int topBedrockLayers = 0;
+    private AgeBiome biome1;
+    private AgeBiome biome2;
+    private AgeBiome biome3;
 
     public AgeDescription(CompoundTag tag) {
         this.load(tag);
@@ -56,10 +63,20 @@ public class AgeDescription {
         int mountainRunesCount = 0;
         int waterRunesCount = 0;
         int lavaRunesCount = 0;
-
         int chaosRunesCount = 0;
 
+        int dayRunesCount = 0;
+        int nightRunesCount = 0;
+        int chaosTimeRunesCount = 0;
+
+        int clearWeatherCount = 0;
+        int rainWeatherCount = 0;
+        int thunderWeatherCount = 0;
+
         int i = 0;
+
+        List<AgeBiome.BaseBiome> baseBiomes = new ArrayList<>();
+
         for (RuneItem item : runes) {
             if (item == MystWorldsItems.RUNE_OF_THESSALY.get()) {
                 flatRunesCount++;
@@ -69,10 +86,16 @@ public class AgeDescription {
                 islandRunesCount++;
             } else if (item == MystWorldsItems.RUNE_OF_PHILAE.get()) {
                 plainsRunesCount++;
+                baseBiomes.add(AgeBiome.BaseBiome.PLAINS);
             } else if (item == MystWorldsItems.RUNE_OF_ARCADIA.get()) {
                 forestRunesCount++;
+                baseBiomes.add(AgeBiome.BaseBiome.FOREST);
+            } else if (item == MystWorldsItems.RUNE_OF_SAYA.get()) {
+                forestRunesCount++;
+                baseBiomes.add(AgeBiome.BaseBiome.TAIGA);
             } else if (item == MystWorldsItems.RUNE_OF_MEMPHIS.get()) {
                 desertRunesCount++;
+                baseBiomes.add(AgeBiome.BaseBiome.DESERT);
             } else if (item == MystWorldsItems.RUNE_OF_OLYMPUS.get()) {
                 mountainRunesCount++;
             } else if (item == MystWorldsItems.RUNE_OF_LUXOR.get()) {
@@ -89,9 +112,32 @@ public class AgeDescription {
                 } else {
                     topBedrockLayers++;
                 }
+            } else if (item == MystWorldsItems.RUNE_OF_KNOSSOS.get()) {
+                rainWeatherCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_RHODES.get()) {
+                clearWeatherCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_ARGOS.get()) {
+                thunderWeatherCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_NYX.get()) {
+                nightRunesCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_HELIOPOLIS.get()) {
+                dayRunesCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_HADES.get()) {
+                chaosTimeRunesCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_ETNA.get()) {
+                fireAmount++;
+            } else if (item == MystWorldsItems.RUNE_OF_THERA.get()) {
+                explosionAmount++;
+                chaosRunesCount++;
             }
             i++;
         }
+
+        RandomSource random = RandomSource.create();
+
+        biome1 = new AgeBiome((!baseBiomes.isEmpty()) ? baseBiomes.get(0) : null, ink1);
+        biome2 = new AgeBiome((1 < baseBiomes.size()) ? baseBiomes.get(1) : null, ink2);
+        biome3 = new AgeBiome((2 < baseBiomes.size()) ? baseBiomes.get(2) : null, ink3);
 
         chaosAmount += chaosRunesCount / 2;
         chaosAmount = Math.max(chaosAmount, 1);
@@ -112,6 +158,40 @@ public class AgeDescription {
             isLava = true;
         }
         liquidY = isLava ? lavaRunesCount * 20 : waterRunesCount * 20;
+        if (chaosAmount <= 2 && random.nextBoolean()) {
+            biome1.getLayers().layer3().set(0, Blocks.STONE);
+            biome1.getLayers().layer4().set(0, Blocks.DEEPSLATE);
+        }
+        if (chaosAmount <= 2 && random.nextBoolean()) {
+            biome2.getLayers().layer3().set(0, Blocks.STONE);
+            biome2.getLayers().layer4().set(0, Blocks.DEEPSLATE);
+        }
+        if (chaosAmount <= 2 && random.nextBoolean()) {
+            biome3.getLayers().layer3().set(0, Blocks.STONE);
+            biome3.getLayers().layer4().set(0, Blocks.DEEPSLATE);
+        }
+        if (rainWeatherCount + clearWeatherCount + thunderWeatherCount == 0 && chaosAmount <= 2) {
+            weather = WEATHER_NORMAL;
+        } else if (rainWeatherCount + clearWeatherCount + thunderWeatherCount == 0) {
+            weather = WEATHER_CHAOS;
+        } else if (clearWeatherCount > rainWeatherCount + thunderWeatherCount && chaosAmount == 1) {
+            weather = WEATHER_CLEAR;
+        } else if (rainWeatherCount > thunderWeatherCount) {
+            weather = WEATHER_RAIN;
+        } else {
+            weather = WEATHER_STORM;
+        }
+        if (chaosTimeRunesCount > 0) {
+            time = TIME_CHAOS;
+        } else if (chaosAmount > 2 && random.nextBoolean()) {
+            time = TIME_CHAOS;
+        } else if (dayRunesCount + nightRunesCount == 0) {
+            time = TIME_NORMAL;
+        } else if (dayRunesCount > nightRunesCount) {
+            time = TIME_DAY;
+        } else {
+            time = TIME_NIGHT;
+        }
     }
 
     public CompoundTag save() {
@@ -119,6 +199,7 @@ public class AgeDescription {
 
         tag.putString("ageName", ageName);
         tag.putInt("sky", sky);
+        tag.putInt("weather", weather);
         tag.putInt("time", time);
         tag.putInt("fireAmount", fireAmount);
         tag.putInt("liquidY", liquidY);
@@ -132,6 +213,10 @@ public class AgeDescription {
         tag.putBoolean("isLava", isLava);
         tag.putInt("bottomBedrockLayers", bottomBedrockLayers);
         tag.putInt("topBedrockLayers", topBedrockLayers);
+
+        tag.put("biome1", biome1.save());
+        tag.put("biome2", biome2.save());
+        tag.put("biome3", biome3.save());
 
         return tag;
     }
@@ -173,6 +258,7 @@ public class AgeDescription {
     public void load(CompoundTag tag) {
         ageName = tag.getString("ageName");
         sky = tag.getInt("sky");
+        weather = tag.getInt("weather");
         time = tag.getInt("time");
         fireAmount = tag.getInt("fireAmount");
         liquidY = tag.getInt("liquidY");
@@ -186,6 +272,10 @@ public class AgeDescription {
         isLava = tag.getBoolean("isLava");
         bottomBedrockLayers = tag.getInt("bottomBedrockLayers");
         topBedrockLayers = tag.getInt("topBedrockLayers");
+
+        biome1 = new AgeBiome(tag.getCompound("biome1"));
+        biome2 = new AgeBiome(tag.getCompound("biome2"));
+        biome3 = new AgeBiome(tag.getCompound("biome3"));
     }
 
     public String getAgeName() {
@@ -194,6 +284,10 @@ public class AgeDescription {
 
     public int getSky() {
         return sky;
+    }
+
+    public int getWeather() {
+        return weather;
     }
 
     public int getTime() {
@@ -246,5 +340,27 @@ public class AgeDescription {
 
     public int getTopBedrockLayers() {
         return topBedrockLayers;
+    }
+
+    public AgeBiome getBiome1() {
+        return biome1;
+    }
+
+    public AgeBiome getBiome2() {
+        return biome2;
+    }
+
+    public AgeBiome getBiome3() {
+        return biome3;
+    }
+
+    public AgeBiome getBiome(int index) {
+        if (index == 0) {
+            return biome1;
+        }
+        if (index == 1) {
+            return biome2;
+        }
+        return biome3;
     }
 }

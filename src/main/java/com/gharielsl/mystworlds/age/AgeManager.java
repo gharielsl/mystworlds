@@ -1,10 +1,12 @@
 package com.gharielsl.mystworlds.age;
 
 import com.gharielsl.mystworlds.MystWorlds;
+import com.gharielsl.mystworlds.event.ServerEventsHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -12,6 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 
@@ -42,6 +46,7 @@ public class AgeManager {
 
     public static Map<String, AgeState> ageStates = new HashMap<>();
     public static Map<String, String> players = new HashMap<>();
+    private static Map<String, AgeDescription> descriptions = new HashMap<>();
     public static Set<String> playersAllowedTravel = new HashSet<>();
 
     public static void allocateNextArea(String name) throws IOException {
@@ -59,6 +64,25 @@ public class AgeManager {
         AgeBounds area = new AgeBounds(minX, minZ, maxX, maxZ);
         ageStates.put(name, new AgeState(area, WEATHER_CLEAR));
         saveAges();
+    }
+
+    public static AgeDescription getDescription(String ageName) {
+        if (ageName == null) {
+            return null;
+        }
+        if (descriptions.containsKey(ageName)) {
+            return descriptions.get(ageName);
+        }
+        if (ServerEventsHandler.SERVER == null) {
+            return null;
+        }
+        try {
+            descriptions.put(ageName, AgeDescription.loadFromFile(ServerEventsHandler.SERVER, ageName));
+            return descriptions.get(ageName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -108,22 +132,22 @@ public class AgeManager {
                 player.sendSystemMessage(Component.literal("Already in " + ageName));
                 return 0;
             }
-            ResourceLocation dimId = new ResourceLocation(MystWorlds.MOD_ID, "mystworld");
-            ResourceKey<Level> dimKey = ResourceKey.create(Registries.DIMENSION, dimId);
 
-            ServerLevel level = server.getLevel(dimKey);
+            ServerLevel level = server.getLevel(AGE_DIM_KEY);
             if (level != null) {
                 if (!ageStates.containsKey(ageName)) {
                     allocateNextArea(ageName);
                 }
                 AgeBounds area = ageStates.get(ageName).bounds();
                 playersAllowedTravel.add(player.getStringUUID());
-                player.teleportTo(level, area.center().getX(), player.getY(), area.center().getZ(), player.getYRot(), player.getXRot());
+                BlockPos center = area.center();
+                player.teleportTo(level, center.getX(), player.getY(), center.getZ(), player.getYRot(), player.getXRot());
+                level.playSound(player, new BlockPos(center.getX(), player.getBlockY(), center.getZ()), SoundEvents.PORTAL_TRAVEL, SoundSource.NEUTRAL);
                 players.put(player.getStringUUID(), ageName);
                 savePlayers();
                 player.sendSystemMessage(Component.literal("Teleported to age: " + ageName));
             } else {
-                player.sendSystemMessage(Component.literal("Dimension not found: " + dimId));
+                player.sendSystemMessage(Component.literal("Dimension not found: " + AGE_DIM_KEY));
             }
             return 1;
         } catch (Exception e) {

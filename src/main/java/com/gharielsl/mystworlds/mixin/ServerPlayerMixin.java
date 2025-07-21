@@ -1,11 +1,14 @@
 package com.gharielsl.mystworlds.mixin;
 
 import com.gharielsl.mystworlds.age.AgeBounds;
+import com.gharielsl.mystworlds.age.AgeDescription;
 import com.gharielsl.mystworlds.age.AgeManager;
-import com.gharielsl.mystworlds.screen.WritingTableMenu;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.Vec3;
@@ -17,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 @Mixin(ServerPlayer.class)
@@ -29,8 +33,10 @@ public abstract class ServerPlayerMixin {
     private String previousAge;
     @Unique
     private boolean sentPackets = false;
+    @Unique
+    private long lastWeatherUpdateTime = 0;
 
-    @Inject(method = "tick", at = @At("TAIL"))
+    @Inject(method = "tick", at = @At("RETURN"))
     private void onTick(CallbackInfo ci) throws IOException {
         ServerPlayer player = (ServerPlayer) (Object) this;
         if (player.hasDisconnected()) {
@@ -44,7 +50,50 @@ public abstract class ServerPlayerMixin {
             }
         } else {
             if (isWithinBounds()) {
+                ServerLevel overworld = player.getServer().overworld();
+                AgeDescription description = AgeManager.getDescription(AgeManager.players.get(player.getStringUUID()));
                 if (AgeManager.players != null) {
+                    long currentTime = level.getGameTime();
+                    long gameTime = overworld.getGameTime();
+                    if (description.getTime() == AgeDescription.TIME_NORMAL) {
+                        player.connection.send(new ClientboundSetTimePacket(gameTime, overworld.getDayTime(), overworld.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
+                    } else if (description.getTime() == AgeDescription.TIME_DAY) {
+                        player.connection.send(new ClientboundSetTimePacket(gameTime, 1000, overworld.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
+                    } else if (description.getTime() == AgeDescription.TIME_NIGHT) {
+                        player.connection.send(new ClientboundSetTimePacket(gameTime, 18000, overworld.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
+                    }
+                    if (currentTime - lastWeatherUpdateTime >= 100 && description != null) {
+                        if (description.getTime() == AgeDescription.TIME_CHAOS) {
+                            player.connection.send(new ClientboundSetTimePacket(gameTime, level.random.nextBoolean() ? 1000 : 18000, overworld.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
+                        }
+                        if (description.getWeather() == AgeDescription.WEATHER_NORMAL) {
+                            if (overworld.isRaining()) {
+                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
+                            } else if (!overworld.isThundering()) {
+                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 0.0F));
+                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0.0F));
+                            } else {
+                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
+                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 1.0F));
+                            }
+                        } else if (description.getWeather() == AgeDescription.WEATHER_CLEAR) {
+                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 0.0F));
+                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0.0F));
+                        } else if (description.getWeather() == AgeDescription.WEATHER_RAIN) {
+                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
+                        } else if (description.getWeather() == AgeDescription.WEATHER_STORM) {
+                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
+                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 1.0F));
+                        } else {
+                            if (level.random.nextBoolean()) {
+                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
+                            } else {
+                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0.0F));
+                            }
+                        }
+
+                        lastWeatherUpdateTime = currentTime;
+                    }
                     if (!sentPackets || !Objects.equals(AgeManager.players.get(player.getStringUUID()), previousAge)) {
                         sendClientBorder();
                         sentPackets = true;
@@ -53,10 +102,16 @@ public abstract class ServerPlayerMixin {
                 }
                 previousPos = player.position();
             } else {
-                if (previousPos != null) {
+                if (previousPos != null && getBounds() != null && getBounds().isWithinBounds((int)previousPos.x, (int)previousPos.z)) {
                     player.teleportTo(previousPos.x, previousPos.y, previousPos.z);
                 } else {
-                    // todo also if previousPos is out of bounds or null teleport player to the fucking backrooms
+                    String currentAge = AgeManager.ageStates.entrySet().stream()
+                            .filter(entry -> entry.getValue().bounds().isWithinBounds(player.getBlockX(), player.getBlockZ()))
+                            .map(Map.Entry::getKey)
+                            .findFirst()
+                            .orElse(null);
+                    AgeManager.players.put(player.getStringUUID(), currentAge);
+                    AgeManager.savePlayers();
                 }
             }
         }

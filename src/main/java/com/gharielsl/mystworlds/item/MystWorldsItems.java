@@ -11,6 +11,7 @@ public class MystWorldsItems {
     public static DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, MystWorlds.MOD_ID);
 
     public static RegistryObject<Item> RUNE_OF_ARCADIA = ITEMS.register("rune_of_arcadia", () -> new RuneItem(new Item.Properties(), "Terrain", "Forest", ChatFormatting.GREEN));
+    public static RegistryObject<Item> RUNE_OF_SAYA = ITEMS.register("rune_of_saya", () -> new RuneItem(new Item.Properties(), "Terrain", "Taiga", ChatFormatting.GREEN));
     public static RegistryObject<Item> RUNE_OF_MEMPHIS = ITEMS.register("rune_of_memphis", () -> new RuneItem(new Item.Properties(), "Terrain", "Desert", ChatFormatting.YELLOW));
     public static RegistryObject<Item> RUNE_OF_PHILAE = ITEMS.register("rune_of_philae", () -> new RuneItem(new Item.Properties(), "Terrain", "Plains", ChatFormatting.YELLOW));
     public static RegistryObject<Item> RUNE_OF_NAUCRATIS = ITEMS.register("rune_of_naucratis", () -> new RuneItem(new Item.Properties(), "Terrain", "Water", ChatFormatting.BLUE));
@@ -57,6 +58,7 @@ public class MystWorldsItems {
     public static RegistryObject<Item> TIME_RUNE = ITEMS.register("time_rune", () -> new UncarvedRuneItem(new Item.Properties(), UncarvedRuneItem.UncarvedRuneType.TIME));
 
     public static RegistryObject<Item> MEMORY_STONE = ITEMS.register("memory_stone", () -> new MemoryStoneItem(new Item.Properties()));
+
 
     // END OF ITEMS
 }

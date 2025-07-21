@@ -227,9 +227,6 @@ public class WritingTableMenu extends AbstractContainerMenu {
             return;
         }
 
-        ItemStack result = new ItemStack(MystWorldsItems.DESCRIPTION_NEUTRAL.get());
-        result.setHoverName(Component.literal(title).setStyle(Style.EMPTY.withItalic(false)));
-
         List<RuneItem> runes = new ArrayList<>();
         for (int i = 6; i < 6 + 6 * 3; i++) {
             if (!blockEntity.itemHandler.getStackInSlot(i).isEmpty()) {
@@ -243,6 +240,17 @@ public class WritingTableMenu extends AbstractContainerMenu {
                 blockEntity.itemHandler.getStackInSlot(5).getItem() instanceof MysticalInkItem ink3 ? ink3 : null,
                 title
         );
+        DescriptionItem descriptionItem;
+        if (description.getChaosAmount() == 1) {
+            descriptionItem = (DescriptionItem) MystWorldsItems.DESCRIPTION_STABLE.get();
+        } else if (description.getChaosAmount() < 4) {
+            descriptionItem = (DescriptionItem) MystWorldsItems.DESCRIPTION_NEUTRAL.get();
+        } else {
+            descriptionItem = (DescriptionItem) MystWorldsItems.DESCRIPTION_UNSTABLE.get();
+        }
+        ItemStack result = new ItemStack(descriptionItem);
+        result.setHoverName(Component.literal(title).setStyle(Style.EMPTY.withItalic(false)));
+
         DescriptionItem.setAgeDescription(result, description);
         blockEntity.itemHandler.setStackInSlot(2, result);
     }

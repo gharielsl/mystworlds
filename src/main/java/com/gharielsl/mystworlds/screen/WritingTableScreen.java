@@ -158,6 +158,8 @@ public class WritingTableScreen extends AbstractContainerScreen<WritingTableMenu
     @Override
     protected void containerTick() {
         super.containerTick();
+        signButton.visible = menu.blockEntity.getCurrentPage() == 2;
+        editBox.visible = menu.blockEntity.getCurrentPage() == 2;
         if (signButton.visible) {
             String message = menu.validateCrafting(editBox.getValue());
             if (message == null) {

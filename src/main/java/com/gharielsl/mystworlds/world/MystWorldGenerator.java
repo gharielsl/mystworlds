@@ -1,10 +1,10 @@
 package com.gharielsl.mystworlds.world;
 
+import com.gharielsl.mystworlds.age.AgeBiome;
 import com.gharielsl.mystworlds.age.AgeDescription;
 import com.gharielsl.mystworlds.age.AgeManager;
 import com.gharielsl.mystworlds.event.ServerEventsHandler;
 import com.gharielsl.mystworlds.util.FastNoiseLite;
-import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -102,16 +102,16 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
         }
     }
 
-    public int getBaseHeight(int x, int z, Heightmap.Types types, LevelHeightAccessor heightAccessor, RandomState randomState) {
-//        if (ServerEventsHandler.SERVER == null) {
-//            return getSpawnHeight(heightAccessor);
-//        }
-//        ServerLevel level = ServerEventsHandler.SERVER.getLevel(AgeManager.AGE_DIM_KEY);
-//        if (level == null) {
-//            return getSpawnHeight(heightAccessor);
-//        }
-//        return level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
+    public static int getBiome(int x, int z) {
+        FastNoiseLite noise = new FastNoiseLite((int) getSeed());
+        float n1 = noise.GetNoise(x / 2f, z / 2f + 2000);
+        float n2 = noise.GetNoise(x + 2000, z);
+        if (n1 <= 0 && n2 >= 0) return 0;
+        if (n1 >= 0 && n2 <= 0) return 1;
+        return 2;
+    }
 
+    public int getBaseHeight(int x, int z, Heightmap.Types types, LevelHeightAccessor heightAccessor, RandomState randomState) {
         String matchingAgeState = AgeManager.ageStates.entrySet().stream()
                 .filter(entry -> entry.getValue().bounds().isWithinBounds(x, z))
                 .map(Map.Entry::getKey)
@@ -121,11 +121,7 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
         AgeDescription description = null;
 
         if (matchingAgeState != null) {
-            try {
-                description = AgeDescription.loadFromFile(ServerEventsHandler.SERVER, matchingAgeState);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            description = AgeManager.getDescription(matchingAgeState);
         }
 
         if (description == null) {
@@ -182,10 +178,16 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
         Heightmap heightmap1 = chunkAccess.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
         Random random = new Random();
         Holder<Biome> riverBiome = null;
+        Holder<Biome> desertBiome = null;
+        Holder<Biome> plainsBiome = null;
+        Holder<Biome> forestBiome = null;
 
         if (ServerEventsHandler.SERVER != null) {
             Registry<Biome> biomeRegistry = ServerEventsHandler.SERVER.registryAccess().registryOrThrow(Registries.BIOME);
             try { riverBiome = biomeRegistry.getHolderOrThrow(Biomes.RIVER); } catch (Exception e) {}
+            try { desertBiome = biomeRegistry.getHolderOrThrow(Biomes.DESERT); } catch (Exception e) {}
+            try { plainsBiome = biomeRegistry.getHolderOrThrow(Biomes.PLAINS); } catch (Exception e) {}
+            try { forestBiome = biomeRegistry.getHolderOrThrow(Biomes.FOREST); } catch (Exception e) {}
         }
 
         ChunkPos chunkPos = chunkAccess.getPos();
@@ -201,11 +203,7 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
         AgeDescription description = null;
 
         if (matchingAgeState != null) {
-            try {
-                description = AgeDescription.loadFromFile(ServerEventsHandler.SERVER, matchingAgeState);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            description = AgeManager.getDescription(matchingAgeState);
         }
 
         if (description == null) {
@@ -221,17 +219,19 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
             for (int z = 0; z < 16; ++z) {
                 int worldX = blockX + x;
                 int worldZ = blockZ + z;
+                int biome = getBiome(worldX, worldZ);
+                AgeBiome.BaseBiome baseBiome = description.getBiome(biome).getBaseBiome();
 
                 float scale = description.getChaosAmount() / 2f;
                 float terrainHeightNoise;
                 float terrainHeightNoise2;
-                int terrainHeight = 0;
-                int terrainHeight2 = 0;
+                float terrainHeight = 0;
+                float terrainHeight2 = 0;
                 if (!description.isFloatingIslands()) {
                     terrainHeightNoise = noise.GetNoise(worldX * scale / description.getNoiseScaleX(), worldZ * scale / description.getNoiseScaleZ());
                     terrainHeightNoise2 = noise.GetNoise(worldX * scale / description.getNoiseScaleX() * 2f + 1000f, worldZ * scale / description.getNoiseScaleZ() * 2f + 1000f);
-                    terrainHeight = (int) (description.getTerrainThreshold() * terrainHeightNoise * 16) + 34;
-                    terrainHeight2 = (int) (description.getTerrainThreshold() * terrainHeightNoise2 * 21) + 35;
+                    terrainHeight = (description.getTerrainThreshold() * terrainHeightNoise * 16) + 34;
+                    terrainHeight2 = (description.getTerrainThreshold() * terrainHeightNoise2 * 21) + 35;
                 }
                 for (int y = chunkAccess.getMinBuildHeight(); y < chunkAccess.getMaxBuildHeight() - 1; ++y) {
                     pos.set(x, y, z);
@@ -242,13 +242,22 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
                         terrainHeight2 = (int) (description.getTerrainThreshold() * terrainHeightNoise2 * 21) + 35;
                     }
                     int caveNoise = (int) (noise.GetNoise(worldX, y, worldZ) * 16);
-                    int terrainHeightWithOffset = terrainHeight;// - (int)((caveNoise / 2f) * description.getChaosAmount());
-                    int combinedHeight = Math.max(terrainHeightWithOffset, terrainHeight2);
+                    float terrainHeightWithOffset = terrainHeight;// - (int)((caveNoise / 2f) * description.getChaosAmount());
+                    float combinedHeight = Math.max(terrainHeightWithOffset, terrainHeight2);
                     if (description.getChaosAmount() > 5) {
                         terrainHeight -= (int)((caveNoise / 16f) * 2);
                     }
                     if ((y <= combinedHeight && !description.isFloatingIslands()) || (combinedHeight > 50 && description.isFloatingIslands())) {
                         chunkAccess.setBlockState(pos, Blocks.STONE.defaultBlockState(), true);
+                    }
+                    if ((y <= combinedHeight + 2 && y > combinedHeight - 4 && !description.isFloatingIslands()) || (description.isFloatingIslands() && combinedHeight > 50)) {
+                        if (baseBiome == AgeBiome.BaseBiome.DESERT) {
+                            setBiome(chunkAccess, pos, desertBiome);
+                        } else if (baseBiome == AgeBiome.BaseBiome.PLAINS) {
+                            setBiome(chunkAccess, pos, plainsBiome);
+                        } else if (baseBiome == AgeBiome.BaseBiome.FOREST) {
+                            setBiome(chunkAccess, pos, forestBiome);
+                        }
                     }
                     if (!description.isFloatingIslands() && combinedHeight < description.getLiquidY() && riverBiome != null && y < description.getLiquidY() + 12 && y > combinedHeight) {
                         setBiome(chunkAccess, pos, riverBiome);
@@ -261,12 +270,21 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
             for (int z = 0; z < 16; ++z) {
                 boolean foundHeight = false;
                 int deep = 0;
+                int worldX = blockX + x;
+                int worldZ = blockZ + z;
+                int biome = getBiome(worldX, worldZ);
+                Block GRASS = description.getBiome(biome).getLayers().layer1().get(0);
+                Block DIRT = description.getBiome(biome).getLayers().layer2().get(0);
+                Block SAND = description.getBiome(biome).getBaseBiome() == AgeBiome.BaseBiome.DESERT ? description.getBiome(biome).getLayers().layer2().get(0) : Blocks.SAND;
+                Block STONE = description.getBiome(biome).getLayers().layer3().get(0);
+                Block DEEPSLATE = description.getBiome(biome).getLayers().layer4().get(0);
+
                 for (int y = chunkAccess.getMaxBuildHeight() - 1; y >= chunkAccess.getMinBuildHeight(); --y) {
                     pos.set(x, y, z);
                     BlockState state = chunkAccess.getBlockState(pos);
                     BlockState stateAbove = chunkAccess.getBlockState(pos.above());
                     if (!state.isAir() && (stateAbove.isAir() || stateAbove.is(liquid))) {
-                        chunkAccess.setBlockState(pos, getSurfaceBlock(y, description.getLiquidY()), true);
+                        chunkAccess.setBlockState(pos, getSurfaceBlock(y, description.getLiquidY(), DIRT, SAND, GRASS), true);
                         if (!foundHeight) {
                             foundHeight = true;
                         }
@@ -276,19 +294,25 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
                             if (y > 100) {
                                 chunkAccess.setBlockState(pos, Blocks.SNOW_BLOCK.defaultBlockState(), true);
                             } else {
-                                BlockState surface = getSurfaceBlock(y, description.getLiquidY());
+                                BlockState surface = getSurfaceBlock(y, description.getLiquidY(), DIRT, SAND, GRASS);
                                 chunkAccess.setBlockState(pos, surface, true);
                             }
+                            if (random.nextInt(300) < description.getFireAmount()) {
+                                chunkAccess.setBlockState(pos, Blocks.MAGMA_BLOCK.defaultBlockState(), true);
+                            } else if (random.nextInt(300) < description.getFireAmount()) {
+                                chunkAccess.setBlockState(pos, Blocks.NETHERRACK.defaultBlockState(), true);
+                                chunkAccess.setBlockState(pos.above(), Blocks.FIRE.defaultBlockState(), true);
+                            }
                         } else if (deep <= 3) {
-                            if (stateAbove.is(Blocks.SAND)) {
-                                chunkAccess.setBlockState(pos, Blocks.SAND.defaultBlockState(), true);
+                            if (stateAbove.is(SAND)) {
+                                chunkAccess.setBlockState(pos, SAND.defaultBlockState(), true);
                             } else {
-                                chunkAccess.setBlockState(pos, Blocks.DIRT.defaultBlockState(), true);
+                                chunkAccess.setBlockState(pos, DIRT.defaultBlockState(), true);
                             }
                         } else if (deep <= 40) {
-                            chunkAccess.setBlockState(pos, Blocks.STONE.defaultBlockState(), true);
+                            chunkAccess.setBlockState(pos, STONE.defaultBlockState(), true);
                         } else {
-                            chunkAccess.setBlockState(pos, Blocks.DEEPSLATE.defaultBlockState(), true);
+                            chunkAccess.setBlockState(pos, DEEPSLATE.defaultBlockState(), true);
                         }
                     } else if (y < description.getLiquidY()) {
                         chunkAccess.setBlockState(pos, liquid.defaultBlockState(), true);
@@ -307,6 +331,9 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
             for (int z = 0; z < 16; ++z) {
                 int worldX = blockX + x;
                 int worldZ = blockZ + z;
+                int biome = getBiome(worldX, worldZ);
+                Block GRASS = description.getBiome(biome).getLayers().layer1().get(0);
+                Block DIRT = description.getBiome(biome).getLayers().layer2().get(0);
 
                 for (int y = chunkAccess.getMaxBuildHeight() - 1; y >= chunkAccess.getMinBuildHeight(); --y) {
                     pos.set(x, y, z);
@@ -317,11 +344,14 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
                         stateBelow = chunkAccess.getBlockState(pos.below());
                     }
 
-                    int caveNoise = (int) (16 * (noise.GetNoise(worldX * 2f, y * 6f, worldZ * 2f)));
-                    if (caveNoise > 12 && !state.is(liquid) && !stateAbove.is(liquid)) {
+                    float distanceToY = Math.abs(y + 30); // y = -30 makes distance 0
+                    float scale = 1f + (1f / (1f + distanceToY)); // Closer to -30 → larger scale
+                    float caveNoise = (16 * scale * noise.GetNoise(worldX * 2f, y * 6f, worldZ * 2f));
+
+                    if (caveNoise > description.getCarvingThreshold() && !state.is(liquid) && !stateAbove.is(liquid)) {
                         chunkAccess.setBlockState(pos, Blocks.AIR.defaultBlockState(), true);
-                        if (stateBelow.is(Blocks.DIRT)) {
-                            chunkAccess.setBlockState(pos.below(), Blocks.GRASS_BLOCK.defaultBlockState(), true);
+                        if (stateBelow.is(DIRT)) {
+                            chunkAccess.setBlockState(pos.below(), GRASS.defaultBlockState(), true);
                         }
                     }
                     if (y < chunkAccess.getMinBuildHeight() + description.getBottomBedrockLayers() * 2 && random.nextBoolean()) {
@@ -342,17 +372,17 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
         return CompletableFuture.completedFuture(chunkAccess);
     }
 
-    private BlockState getSurfaceBlock(int y, int seaLevel) {
+    private BlockState getSurfaceBlock(int y, int seaLevel, Block dirt, Block sand, Block grass) {
         if (y < seaLevel - 3) {
-            return Blocks.DIRT.defaultBlockState();
+            return dirt.defaultBlockState();
         }
         if (y < seaLevel + 1) {
-            return Blocks.SAND.defaultBlockState();
+            return sand.defaultBlockState();
         }
-        return Blocks.GRASS_BLOCK.defaultBlockState();
+        return grass.defaultBlockState();
     }
 
-    private long getSeed() {
+    private static long getSeed() {
         MinecraftServer server = ServerEventsHandler.SERVER;
         if (server == null) {
             return 0;

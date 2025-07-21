@@ -1,5 +1,5 @@
 {
-  "type": "minecraft:overworld",
+  "type": "mystworlds:mystworld_type",
   "generator": {
     "type": "mystworlds:generator",
     "biome_source": {

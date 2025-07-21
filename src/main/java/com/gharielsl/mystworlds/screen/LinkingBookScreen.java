@@ -2,6 +2,7 @@ package com.gharielsl.mystworlds.screen;
 
 import com.gharielsl.mystworlds.MystWorlds;
 import com.gharielsl.mystworlds.age.AgeDescription;
+import com.gharielsl.mystworlds.age.AgeManager;
 import com.gharielsl.mystworlds.item.MemoryStoneItem;
 import com.gharielsl.mystworlds.network.MystWorldsChannels;
 import com.gharielsl.mystworlds.network.TravelToAgePacket;
@@ -15,6 +16,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +26,9 @@ import java.nio.file.Path;
 public class LinkingBookScreen extends Screen {
     private static final ResourceLocation TEXTURE =
             new ResourceLocation(MystWorlds.MOD_ID, "textures/gui/book.png");
+
+    private static final ResourceLocation TEXTURE_OVERWORLD =
+            new ResourceLocation(MystWorlds.MOD_ID, "textures/gui/overworld.png");
 
     private static final int IMAGE_WIDTH = 192;
     private static final int IMAGE_HEIGHT = 144;
@@ -51,11 +57,19 @@ public class LinkingBookScreen extends Screen {
         int textWidth = this.font.width(description.getAgeName());
         graphics.drawString(this.font, description.getAgeName(), centerX - textWidth / 2, centerY, 0x404040, false);
 
-        if (screenshotLocation != null) {
+        ResourceLocation tex = screenshotLocation;
+        String currentPlayerAge = null;
+        if (Minecraft.getInstance().player != null) {
+            currentPlayerAge = AgeManager.players.get(Minecraft.getInstance().player.getStringUUID());
+        }
+        if (currentPlayerAge != null && currentPlayerAge.equals(description.getAgeName())) {
+            tex = TEXTURE_OVERWORLD;
+        }
+        if (tex != null) {
             int imageX = (width - IMAGE_WIDTH) / 2 + 111;
             int imageY = (height - IMAGE_HEIGHT) / 2 - 16 + 25;
-            Minecraft.getInstance().getTextureManager().bindForSetup(screenshotLocation);
-            graphics.blit(screenshotLocation, imageX, imageY, 0, 0, 56, 25, 56, 25);
+            Minecraft.getInstance().getTextureManager().bindForSetup(tex);
+            graphics.blit(tex, imageX, imageY, 0, 0, 56, 25, 56, 25);
         }
 
         super.render(graphics, mouseX, mouseY, partialTicks);

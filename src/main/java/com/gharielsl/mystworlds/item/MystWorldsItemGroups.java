@@ -37,6 +37,7 @@ public class MystWorldsItemGroups {
                         output.accept(MystWorldsItems.TIME_RUNE.get());
 
                         output.accept(MystWorldsItems.RUNE_OF_ARCADIA.get());
+                        output.accept(MystWorldsItems.RUNE_OF_SAYA.get());
                         output.accept(MystWorldsItems.RUNE_OF_MEMPHIS.get());
                         output.accept(MystWorldsItems.RUNE_OF_PHILAE.get());
                         output.accept(MystWorldsItems.RUNE_OF_NAUCRATIS.get());

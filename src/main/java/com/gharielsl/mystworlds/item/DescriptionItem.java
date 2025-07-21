@@ -1,13 +1,11 @@
 package com.gharielsl.mystworlds.item;
 
 import com.gharielsl.mystworlds.age.AgeDescription;
-import com.gharielsl.mystworlds.age.AgeManager;
 import com.gharielsl.mystworlds.screen.LinkingBookScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -83,23 +81,23 @@ public class DescriptionItem extends Item {
 
         AgeDescription description = getAgeDescription(stack);
         if (description != null) {
-            components.add(Component.literal("Sky: " + skyName(description.getSky())).withStyle(ChatFormatting.GRAY));
-            components.add(Component.literal("Time: " + timeName(description.getTime())).withStyle(ChatFormatting.GRAY));
-            components.add(Component.literal("Fire Amount: " + description.getFireAmount()).withStyle(ChatFormatting.GRAY));
-            components.add(Component.literal("Water Amount: " + description.getLiquidY()).withStyle(ChatFormatting.GRAY));
-            components.add(Component.literal("Explosion Amount: " + description.getExplosionAmount()).withStyle(ChatFormatting.GRAY));
-            components.add(Component.literal("Chaos Amount: " + description.getChaosAmount()).withStyle(ChatFormatting.GRAY));
-            components.add(Component.literal("Carving Threshold: " + description.getCarvingThreshold()).withStyle(ChatFormatting.GRAY));
-            components.add(Component.literal("Terrain Threshold: " + description.getTerrainThreshold()).withStyle(ChatFormatting.GRAY));
+//            components.add(Component.literal("Time: " + timeName(description.getTime())).withStyle(ChatFormatting.GRAY));
+//            components.add(Component.literal("Fire Amount: " + description.getFireAmount()).withStyle(ChatFormatting.GRAY));
+//            components.add(Component.literal("Water Amount: " + description.getLiquidY()).withStyle(ChatFormatting.GRAY));
+//            components.add(Component.literal("Explosion Amount: " + description.getExplosionAmount()).withStyle(ChatFormatting.GRAY));
+//            components.add(Component.literal("Chaos Amount: " + description.getChaosAmount()).withStyle(ChatFormatting.GRAY));
+//            components.add(Component.literal("Carving Threshold: " + description.getCarvingThreshold()).withStyle(ChatFormatting.GRAY));
+//            components.add(Component.literal("Terrain Threshold: " + description.getTerrainThreshold()).withStyle(ChatFormatting.GRAY));
         }
     }
 
     private String skyName(int sky) {
         return switch (sky) {
-            case AgeDescription.SKY_CLEAR -> "Clear";
-            case AgeDescription.SKY_RAIN -> "Rain";
-            case AgeDescription.SKY_STORM -> "Storm";
-            case AgeDescription.SKY_NORMAL -> "Normal";
+            case AgeDescription.WEATHER_CLEAR -> "Clear";
+            case AgeDescription.WEATHER_RAIN -> "Rain";
+            case AgeDescription.WEATHER_STORM -> "Storm";
+            case AgeDescription.WEATHER_NORMAL -> "Normal";
+            case AgeDescription.WEATHER_CHAOS -> "Chaos";
             default -> "Unknown";
         };
     }
