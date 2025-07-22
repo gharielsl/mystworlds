@@ -205,12 +205,12 @@ public class AgeDescription {
         }
         if (rainWeatherCount + clearWeatherCount + thunderWeatherCount == 0 && chaosAmount <= 2) {
             weather = WEATHER_NORMAL;
-        } else if (rainWeatherCount + clearWeatherCount + thunderWeatherCount == 0) {
-            weather = WEATHER_CHAOS;
         } else if (clearWeatherCount > rainWeatherCount + thunderWeatherCount && chaosAmount == 1) {
             weather = WEATHER_CLEAR;
         } else if (rainWeatherCount > thunderWeatherCount) {
             weather = WEATHER_RAIN;
+        } else if (rainWeatherCount + clearWeatherCount + thunderWeatherCount == 0) {
+            weather = WEATHER_CHAOS;
         } else {
             weather = WEATHER_STORM;
         }

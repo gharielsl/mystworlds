@@ -435,7 +435,7 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
                             try {
                                 p_223087_.setCurrentlyGenerating(supplier);
                                 p_223089_.startsForStructure(sectionpos, structure).forEach((p_223086_) -> {
-                                    p_223086_.placeInChunk(p_223087_, p_223089_, this, worldgenrandom, ((ChunkGeneratorAccessor)this).getWritableArea(p_223088_), chunkpos);
+                                    p_223086_.placeInChunk(p_223087_, p_223089_, this, worldgenrandom, ChunkGeneratorAccessor.getWritableArea(p_223088_), chunkpos);
                                 });
                             } catch (Exception exception) {
                                 CrashReport crashreport1 = CrashReport.forThrowable(exception, "Feature placement");

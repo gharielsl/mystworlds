@@ -24,6 +24,9 @@ public interface ChunkGeneratorAccessor {
     Supplier<List<FeatureSorter.StepFeatureData>> featuresPerStep();
     @Accessor("generationSettingsGetter")
     Function<Holder<Biome>, BiomeGenerationSettings> generationSettingsGetter();
+
     @Invoker("getWritableArea")
-    BoundingBox getWritableArea(ChunkAccess p_187718_);
+    static BoundingBox getWritableArea(ChunkAccess p_187718_) {
+        return null;
+    }
 }

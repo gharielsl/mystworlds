@@ -33,8 +33,6 @@ public abstract class ServerPlayerMixin {
     private String previousAge;
     @Unique
     private boolean sentPackets = false;
-    @Unique
-    private long lastWeatherUpdateTime = 0;
 
     @Inject(method = "tick", at = @At("RETURN"))
     private void onTick(CallbackInfo ci) throws IOException {
@@ -50,50 +48,7 @@ public abstract class ServerPlayerMixin {
             }
         } else {
             if (isWithinBounds()) {
-                ServerLevel overworld = player.getServer().overworld();
-                AgeDescription description = AgeManager.getDescription(AgeManager.players.get(player.getStringUUID()));
                 if (AgeManager.players != null) {
-                    long currentTime = level.getGameTime();
-                    long gameTime = overworld.getGameTime();
-                    if (description.getTime() == AgeDescription.TIME_NORMAL) {
-                        player.connection.send(new ClientboundSetTimePacket(gameTime, overworld.getDayTime(), overworld.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
-                    } else if (description.getTime() == AgeDescription.TIME_DAY) {
-                        player.connection.send(new ClientboundSetTimePacket(gameTime, 1000, overworld.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
-                    } else if (description.getTime() == AgeDescription.TIME_NIGHT) {
-                        player.connection.send(new ClientboundSetTimePacket(gameTime, 18000, overworld.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
-                    }
-                    if (currentTime - lastWeatherUpdateTime >= 100 && description != null) {
-                        if (description.getTime() == AgeDescription.TIME_CHAOS) {
-                            player.connection.send(new ClientboundSetTimePacket(gameTime, level.random.nextBoolean() ? 1000 : 18000, overworld.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
-                        }
-                        if (description.getWeather() == AgeDescription.WEATHER_NORMAL) {
-                            if (overworld.isRaining()) {
-                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
-                            } else if (!overworld.isThundering()) {
-                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 0.0F));
-                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0.0F));
-                            } else {
-                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
-                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 1.0F));
-                            }
-                        } else if (description.getWeather() == AgeDescription.WEATHER_CLEAR) {
-                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 0.0F));
-                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0.0F));
-                        } else if (description.getWeather() == AgeDescription.WEATHER_RAIN) {
-                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
-                        } else if (description.getWeather() == AgeDescription.WEATHER_STORM) {
-                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
-                            player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 1.0F));
-                        } else {
-                            if (level.random.nextBoolean()) {
-                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
-                            } else {
-                                player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0.0F));
-                            }
-                        }
-
-                        lastWeatherUpdateTime = currentTime;
-                    }
                     if (!sentPackets || !Objects.equals(AgeManager.players.get(player.getStringUUID()), previousAge)) {
                         sendClientBorder();
                         sentPackets = true;
