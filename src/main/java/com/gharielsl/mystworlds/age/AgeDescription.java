@@ -3,18 +3,25 @@ package com.gharielsl.mystworlds.age;
 import com.gharielsl.mystworlds.item.MystWorldsItems;
 import com.gharielsl.mystworlds.item.MysticalInkItem;
 import com.gharielsl.mystworlds.item.RuneItem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AgeDescription {
     public static final int WEATHER_CLEAR = 1;
@@ -28,8 +35,14 @@ public class AgeDescription {
     public static final int TIME_NORMAL = 3;
     public static final int TIME_CHAOS = 4;
 
+    public static final int SKY_DEFAULT = 1;
+    public static final int SKY_BLUE = 2;
+    public static final int SKY_RED = 3;
+    public static final int SKY_GREEN = 4;
+    public static final int SKY_CHAOS = 5;
+
     private String ageName;
-    private int sky;
+    private int sky = SKY_DEFAULT;
     private int weather = WEATHER_NORMAL;
     private int time = TIME_NORMAL;
     private int fireAmount;
@@ -47,6 +60,7 @@ public class AgeDescription {
     private AgeBiome biome1;
     private AgeBiome biome2;
     private AgeBiome biome3;
+    private Block caveBlock = Blocks.AIR;
 
     public AgeDescription(CompoundTag tag) {
         this.load(tag);
@@ -72,6 +86,13 @@ public class AgeDescription {
         int clearWeatherCount = 0;
         int rainWeatherCount = 0;
         int thunderWeatherCount = 0;
+
+        Map<Integer, Integer> skyColorScores = new java.util.HashMap<>(Map.of(
+                SKY_BLUE, 0,
+                SKY_RED, 0,
+                SKY_GREEN, 0
+        ));
+        int skyRunesCount = 0;
 
         int i = 0;
 
@@ -129,6 +150,15 @@ public class AgeDescription {
             } else if (item == MystWorldsItems.RUNE_OF_THERA.get()) {
                 explosionAmount++;
                 chaosRunesCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_EROS.get()) {
+                skyColorScores.put(SKY_RED, skyColorScores.get(SKY_RED) + 1);
+                skyRunesCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_DELOS.get()) {
+                skyColorScores.put(SKY_BLUE, skyColorScores.get(SKY_BLUE) + 1);
+                skyRunesCount++;
+            } else if (item == MystWorldsItems.RUNE_OF_SKIATHOS.get()) {
+                skyColorScores.put(SKY_GREEN, skyColorScores.get(SKY_GREEN) + 1);
+                skyRunesCount++;
             }
             i++;
         }
@@ -158,6 +188,9 @@ public class AgeDescription {
             isLava = true;
         }
         liquidY = isLava ? lavaRunesCount * 20 : waterRunesCount * 20;
+        if (lavaRunesCount + waterRunesCount == 0) {
+            liquidY = -1000;
+        }
         if (chaosAmount <= 2 && random.nextBoolean()) {
             biome1.getLayers().layer3().set(0, Blocks.STONE);
             biome1.getLayers().layer4().set(0, Blocks.DEEPSLATE);
@@ -192,6 +225,21 @@ public class AgeDescription {
         } else {
             time = TIME_NIGHT;
         }
+        if (chaosAmount > 3) {
+            caveBlock = List.of(Blocks.OAK_LOG, Blocks.PACKED_ICE, Blocks.WHITE_WOOL, Blocks.NETHERRACK, Blocks.GLASS).get(random.nextInt(5));
+        }
+
+        sky = skyColorScores.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey).orElse(SKY_DEFAULT);
+
+        if (chaosAmount > 3 && random.nextBoolean()) {
+            sky = SKY_CHAOS;
+        }
+        if (chaosAmount == 1 && skyRunesCount == 0) {
+            sky = SKY_DEFAULT;
+        }
     }
 
     public CompoundTag save() {
@@ -217,6 +265,8 @@ public class AgeDescription {
         tag.put("biome1", biome1.save());
         tag.put("biome2", biome2.save());
         tag.put("biome3", biome3.save());
+
+        tag.putString("caveBlock", ForgeRegistries.BLOCKS.getKey(caveBlock).toString());
 
         return tag;
     }
@@ -276,6 +326,8 @@ public class AgeDescription {
         biome1 = new AgeBiome(tag.getCompound("biome1"));
         biome2 = new AgeBiome(tag.getCompound("biome2"));
         biome3 = new AgeBiome(tag.getCompound("biome3"));
+
+        caveBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(tag.getString("caveBlock")));
     }
 
     public String getAgeName() {
@@ -352,6 +404,10 @@ public class AgeDescription {
 
     public AgeBiome getBiome3() {
         return biome3;
+    }
+
+    public Block getCaveBlock() {
+        return caveBlock;
     }
 
     public AgeBiome getBiome(int index) {

@@ -46,6 +46,9 @@ public class RuneCarvingFakeRecipe implements Recipe<SimpleContainer> {
             MystWorldsItems.RUNE_OF_HELIOPOLIS.get(),
             MystWorldsItems.RUNE_OF_HADES.get(),
 
+            MystWorldsItems.RUNE_OF_SAYA.get(),
+            MystWorldsItems.RUNE_OF_SKIATHOS.get(),
+
             MystWorldsItems.MEMORY_STONE.get()
     );
 

@@ -231,6 +231,7 @@ public class WritingTableMenu extends AbstractContainerMenu {
         for (int i = 6; i < 6 + 6 * 3; i++) {
             if (!blockEntity.itemHandler.getStackInSlot(i).isEmpty()) {
                 runes.add((RuneItem) blockEntity.itemHandler.getStackInSlot(i).getItem());
+                blockEntity.itemHandler.getStackInSlot(i).shrink(1);
             }
         }
         AgeDescription description = new AgeDescription(
@@ -240,6 +241,9 @@ public class WritingTableMenu extends AbstractContainerMenu {
                 blockEntity.itemHandler.getStackInSlot(5).getItem() instanceof MysticalInkItem ink3 ? ink3 : null,
                 title
         );
+        blockEntity.itemHandler.getStackInSlot(3).shrink(1);
+        blockEntity.itemHandler.getStackInSlot(4).shrink(1);
+        blockEntity.itemHandler.getStackInSlot(5).shrink(1);
         DescriptionItem descriptionItem;
         if (description.getChaosAmount() == 1) {
             descriptionItem = (DescriptionItem) MystWorldsItems.DESCRIPTION_STABLE.get();
@@ -248,6 +252,8 @@ public class WritingTableMenu extends AbstractContainerMenu {
         } else {
             descriptionItem = (DescriptionItem) MystWorldsItems.DESCRIPTION_UNSTABLE.get();
         }
+        blockEntity.itemHandler.getStackInSlot(0).shrink(3);
+        blockEntity.itemHandler.getStackInSlot(1).shrink(1);
         ItemStack result = new ItemStack(descriptionItem);
         result.setHoverName(Component.literal(title).setStyle(Style.EMPTY.withItalic(false)));
 

@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.FileInputStream;
@@ -98,7 +99,7 @@ public class MemoryStoneItem extends Item {
         Minecraft mc = Minecraft.getInstance();
         String worldId;
         if (Minecraft.getInstance().getSingleplayerServer() != null) {
-            worldId = Minecraft.getInstance().getSingleplayerServer().getWorldData().getLevelName();
+            worldId = Minecraft.getInstance().getSingleplayerServer().getWorldPath(LevelResource.ROOT).getFileName().toString();
         } else if (Minecraft.getInstance().getCurrentServer() != null) {
             worldId = Minecraft.getInstance().getCurrentServer().ip;
         } else {
@@ -125,7 +126,7 @@ public class MemoryStoneItem extends Item {
         Minecraft mc = Minecraft.getInstance();
         String worldId;
         if (Minecraft.getInstance().getSingleplayerServer() != null) {
-            worldId = Minecraft.getInstance().getSingleplayerServer().getWorldData().getLevelName();
+            worldId = Minecraft.getInstance().getSingleplayerServer().getWorldPath(LevelResource.ROOT).getFileName().toString();
         } else if (Minecraft.getInstance().getCurrentServer() != null) {
             worldId = Minecraft.getInstance().getCurrentServer().ip;
         } else {

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:glass"
+    },
+    "@": {
+      "item": "minecraft:lapis_lazuli"
+    }
+  },
+  "pattern": [
+    "#@#",
+    " # "
+  ],
+  "result": {
+    "count": 3,
+    "item": "mystworlds:blue_mystical_ink"
+  }
+}

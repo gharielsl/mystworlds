@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "mystworlds:orange_mystical_ink"
+    },
+    {
+      "item": "mystworlds:black_mystical_ink"
+    }
+  ],
+  "result": {
+    "count": 2,
+    "item": "mystworlds:brown_mystical_ink"
+  }
+}

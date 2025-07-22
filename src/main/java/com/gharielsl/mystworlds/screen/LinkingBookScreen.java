@@ -82,7 +82,9 @@ public class LinkingBookScreen extends Screen {
             onClose();
         }).size(IMAGE_WIDTH, 24).pos((width - IMAGE_WIDTH) / 2, (height - IMAGE_HEIGHT) / 2 + IMAGE_HEIGHT).build());
         Button link = Button.builder(Component.literal(""), button -> {
+            
             MystWorldsChannels.INSTANCE.sendToServer(new TravelToAgePacket());
+            onClose();
         }).size(56, 25).pos((width - IMAGE_WIDTH) / 2 + 111, (height - IMAGE_HEIGHT) / 2 - 16 + 25).build();
         link.setTooltip(Tooltip.create(Component.literal("Click to travel")));
         link.setAlpha(0);

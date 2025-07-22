@@ -58,6 +58,7 @@ public class MystWorldsItemGroups {
                         output.accept(MystWorldsItems.RUNE_OF_EROS.get());
                         output.accept(MystWorldsItems.RUNE_OF_RHODES.get());
                         output.accept(MystWorldsItems.RUNE_OF_ARGOS.get());
+                        output.accept(MystWorldsItems.RUNE_OF_SKIATHOS.get());
 
                         output.accept(MystWorldsItems.RUNE_OF_NYX.get());
                         output.accept(MystWorldsItems.RUNE_OF_HELIOPOLIS.get());

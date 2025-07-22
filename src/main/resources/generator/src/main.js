@@ -6,7 +6,7 @@ const { createItem } = require("./json/item");
 const { isBlock, validate } = require("./validation");
 
 const assetConfig = {
-    assetName: "rune_of_saya", // e.g. fancy_stone_stairs
+    assetName: "rune_of_skiathos", // e.g. fancy_stone_stairs
     assetType: "item", // stairs
     parentAsset: "", // minecraft:block/stone
     javaBlockParent: "", // stone_stairs

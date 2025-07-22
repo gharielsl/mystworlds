@@ -1,5 +1,6 @@
 package com.gharielsl.mystworlds.network;
 
+import com.gharielsl.mystworlds.MystWorlds;
 import com.gharielsl.mystworlds.age.AgeBounds;
 import com.gharielsl.mystworlds.age.AgeDescription;
 import com.gharielsl.mystworlds.age.AgeManager;
@@ -63,10 +64,12 @@ public class TravelToAgePacket {
                 }
                 if (player.level().dimension().equals(AgeManager.AGE_DIM_KEY)) {
                     if (description.getAgeName().equals(AgeManager.players.get(player.getStringUUID()))) {
+                        
                         teleportToRespawn(player);
                         return;
                     }
                 }
+                
                 AgeManager.createAndOrTeleport(player, description.getAgeName());
             }
         });

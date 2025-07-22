@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:glass"
+    },
+    "@": {
+      "item": "minecraft:echo_shard"
+    }
+  },
+  "pattern": [
+    "#@#",
+    " # "
+  ],
+  "result": {
+    "count": 3,
+    "item": "mystworlds:black_mystical_ink"
+  }
+}

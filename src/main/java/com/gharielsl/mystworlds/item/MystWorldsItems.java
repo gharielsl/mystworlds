@@ -32,6 +32,7 @@ public class MystWorldsItems {
     public static RegistryObject<Item> RUNE_OF_EROS = ITEMS.register("rune_of_eros", () -> new RuneItem(new Item.Properties(), "Sky", "Red", ChatFormatting.RED));
     public static RegistryObject<Item> RUNE_OF_RHODES = ITEMS.register("rune_of_rhodes", () -> new RuneItem(new Item.Properties(), "Sky", "Clear", ChatFormatting.WHITE));
     public static RegistryObject<Item> RUNE_OF_ARGOS = ITEMS.register("rune_of_argos", () -> new RuneItem(new Item.Properties(), "Sky", "Storm", ChatFormatting.DARK_BLUE));
+    public static RegistryObject<Item> RUNE_OF_SKIATHOS = ITEMS.register("rune_of_skiathos", () -> new RuneItem(new Item.Properties(), "Sky", "Green", ChatFormatting.GREEN));
 
     public static RegistryObject<Item> RUNE_OF_NYX = ITEMS.register("rune_of_nyx", () -> new RuneItem(new Item.Properties(), "Time", "Night", ChatFormatting.DARK_PURPLE));
     public static RegistryObject<Item> RUNE_OF_HELIOPOLIS = ITEMS.register("rune_of_heliopolis", () -> new RuneItem(new Item.Properties(), "Time", "Day", ChatFormatting.BLUE));
@@ -58,7 +59,6 @@ public class MystWorldsItems {
     public static RegistryObject<Item> TIME_RUNE = ITEMS.register("time_rune", () -> new UncarvedRuneItem(new Item.Properties(), UncarvedRuneItem.UncarvedRuneType.TIME));
 
     public static RegistryObject<Item> MEMORY_STONE = ITEMS.register("memory_stone", () -> new MemoryStoneItem(new Item.Properties()));
-
 
     // END OF ITEMS
 }

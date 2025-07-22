@@ -5,11 +5,17 @@
   "refmap": "mixins.mystworlds.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "FeatureMixin",
+    "BiomeMixin",
+    "ChunkGeneratorAccessor",
+    "LevelChunkSectionAccessor",
+    "NoiseBasedChunkGeneratorAccessor",
     "PlayerMixin",
     "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "ClientLevelMixin"
+  ]
 }

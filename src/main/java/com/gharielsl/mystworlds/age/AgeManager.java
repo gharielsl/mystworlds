@@ -7,6 +7,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -17,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.LevelResource;
 
 import javax.annotation.Nullable;
@@ -86,14 +88,14 @@ public class AgeManager {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("gendim")
-                .then(Commands.argument("name", StringArgumentType.word())
-                        .executes(context -> {
-                            String name = StringArgumentType.getString(context, "name");
-                            return execute(context.getSource(), name);
-                        })));
+//        dispatcher.register(Commands.literal("gendim")
+//                .then(Commands.argument("name", StringArgumentType.word())
+//                        .executes(context -> {
+//                            String name = StringArgumentType.getString(context, "name");
+//                            return execute(context.getSource(), name);
+//                        })));
 
-        dispatcher.register(Commands.literal("dim")
+        dispatcher.register(Commands.literal("age")
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayer();
                             try {
@@ -105,9 +107,9 @@ public class AgeManager {
                                 return 0;
                             }
 
-                            String message = "dim: ";
+                            String message = "age: ";
                             String dim = players.get(player.getStringUUID());
-                            message += dim + "," + ageStates.get(dim);
+                            message += dim + ", " + ageStates.get(dim);
 
                             String finalMessage = message;
                             context.getSource().sendSuccess(() -> Component.literal(finalMessage), true);
@@ -141,8 +143,17 @@ public class AgeManager {
                 AgeBounds area = ageStates.get(ageName).bounds();
                 playersAllowedTravel.add(player.getStringUUID());
                 BlockPos center = area.center();
-                player.teleportTo(level, center.getX(), player.getY(), center.getZ(), player.getYRot(), player.getXRot());
-                level.playSound(player, new BlockPos(center.getX(), player.getBlockY(), center.getZ()), SoundEvents.PORTAL_TRAVEL, SoundSource.NEUTRAL);
+                int ySpawn;
+                for (ySpawn = level.getMaxBuildHeight(); ySpawn > level.getMinBuildHeight(); ySpawn--) {
+                    BlockPos pos = new BlockPos(center.getX(), ySpawn, center.getZ());
+                    if (level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP)) {
+                        ySpawn++;
+                        break;
+                    }
+                }
+                
+                player.teleportTo(level, center.getX(), ySpawn, center.getZ(), player.getYRot(), player.getXRot());
+                level.playSound(player, new BlockPos(center.getX(), ySpawn, center.getZ()), SoundEvents.PORTAL_TRAVEL, SoundSource.NEUTRAL);
                 players.put(player.getStringUUID(), ageName);
                 savePlayers();
                 player.sendSystemMessage(Component.literal("Teleported to age: " + ageName));
@@ -151,6 +162,7 @@ public class AgeManager {
             }
             return 1;
         } catch (Exception e) {
+            MystWorlds.LOGGER.error(e.getMessage());
             if (player != null) {
                 player.sendSystemMessage(Component.literal(e.getMessage()));
                 playersAllowedTravel.remove(player.getStringUUID());

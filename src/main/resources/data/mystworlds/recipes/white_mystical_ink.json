@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:glass"
+    },
+    "@": {
+      "item": "minecraft:phantom_membrane"
+    }
+  },
+  "pattern": [
+    "#@#",
+    " # "
+  ],
+  "result": {
+    "count": 3,
+    "item": "mystworlds:white_mystical_ink"
+  }
+}

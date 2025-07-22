@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 1,
+  "ingredient": {
+    "item": "mystworlds:sky_rune_ore"
+  },
+  "result": "mystworlds:sky_rune"
+}

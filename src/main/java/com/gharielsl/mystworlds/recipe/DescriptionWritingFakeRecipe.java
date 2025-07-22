@@ -54,7 +54,10 @@ public class DescriptionWritingFakeRecipe implements Recipe<SimpleContainer> {
 
             MystWorldsItems.RUNE_OF_NYX.get(),
             MystWorldsItems.RUNE_OF_HELIOPOLIS.get(),
-            MystWorldsItems.RUNE_OF_HADES.get()
+            MystWorldsItems.RUNE_OF_HADES.get(),
+
+            MystWorldsItems.RUNE_OF_SAYA.get(),
+            MystWorldsItems.RUNE_OF_SKIATHOS.get()
     );
     public static final Ingredient OUTPUT = Ingredient.of(
             MystWorldsItems.DESCRIPTION_STABLE.get(),

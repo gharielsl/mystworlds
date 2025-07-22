@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:glass"
+    },
+    "@": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "#@#",
+    " # "
+  ],
+  "result": {
+    "count": 3,
+    "item": "mystworlds:red_mystical_ink"
+  }
+}

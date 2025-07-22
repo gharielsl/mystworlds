@@ -1,8 +1,6 @@
 package com.gharielsl.mystworlds.age;
 
-import com.gharielsl.mystworlds.item.MystWorldsItems;
 import com.gharielsl.mystworlds.item.MysticalInkItem;
-import com.gharielsl.mystworlds.item.RuneItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -12,20 +10,21 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AgeBiome {
     private LayersConfiguration layers = new LayersConfiguration(
             new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     private List<String> features = new ArrayList<>();
     private final BaseBiome baseBiome;
+    private final MysticalInkItem.MysticalInkColor color;
 
     public AgeBiome(BaseBiome baseBiome, MysticalInkItem ink) {
         this.baseBiome = baseBiome == null ? BaseBiome.PLAINS : baseBiome;
-        setupLayers(ink.getColor());
+        this.color = ink == null ? null : ink.getColor();
+        setupLayers(ink == null ? null : ink.getColor());
         setupFeatures();
     }
 
@@ -56,6 +55,12 @@ public class AgeBiome {
                 this.features.add(featuresTag.getString(i));
             }
         }
+
+        if (tag.contains("Color")) {
+            this.color = MysticalInkItem.MysticalInkColor.valueOf(tag.getString("Color"));
+        } else {
+            this.color = null;
+        }
     }
 
     public CompoundTag save() {
@@ -70,11 +75,21 @@ public class AgeBiome {
             featuresTag.add(StringTag.valueOf(feature));
         }
         tag.put("Features", featuresTag);
+        if (color != null) {
+            tag.putString("Color", color.name());
+        }
 
         return tag;
     }
 
-    private void setupLayers(MysticalInkItem.MysticalInkColor color) {
+    private void setupLayers(@Nullable MysticalInkItem.MysticalInkColor color) {
+        if (color == null) {
+            layers.layer1().add(Blocks.GRASS_BLOCK);
+            layers.layer2().add(Blocks.DIRT);
+            layers.layer3().add(Blocks.STONE);
+            layers.layer4().add(Blocks.DEEPSLATE);
+            return;
+        }
         switch (color) {
             case RED -> {
                 if (baseBiome == BaseBiome.DESERT) {
@@ -257,7 +272,38 @@ public class AgeBiome {
         features.add("monster_room");
         features.add("monster_room_deep");
         features.add("lake_lava_underground");
+        features.add("ore_dirt");
+        features.add("ore_gravel");
+        features.add("ore_granite_upper");
+        features.add("ore_granite_lower");
+        features.add("ore_diorite_upper");
+        features.add("ore_diorite_lower");
+        features.add("ore_andesite_upper");
+        features.add("ore_andesite_lower");
+        features.add("ore_tuff");
+        features.add("ore_coal_upper");
+        features.add("ore_coal_lower");
+        features.add("ore_iron_upper");
+        features.add("ore_iron_middle");
+        features.add("ore_iron_small");
+        features.add("ore_gold");
+        features.add("ore_gold_lower");
+        features.add("ore_redstone");
+        features.add("ore_redstone_lower");
+        features.add("ore_diamond");
+        features.add("ore_diamond_large");
+        features.add("ore_diamond_buried");
+        features.add("ore_lapis");
+        features.add("ore_lapis_buried");
+        features.add("ore_copper");
+        features.add("underwater_magma");
+        features.add("disk_sand");
+        features.add("disk_clay");
+        features.add("disk_gravel");
+        features.add("spring_water");
+        features.add("spring_lava");
         if (baseBiome == BaseBiome.FOREST) {
+            features.add("trees_birch_and_oak");
             features.add("forest_flowers");
             features.add("trees_birch_and_oak_leaf_litter");
             features.add("patch_bush");
@@ -275,14 +321,18 @@ public class AgeBiome {
         } else if (baseBiome == BaseBiome.PLAINS) {
             features.add("patch_grass_plain");
             features.add("patch_tall_grass_2");
+            features.add("patch_large_fern");
             features.add("trees_plains");
         } else if (baseBiome == BaseBiome.TAIGA) {
             features.add("trees_taiga");
+            features.add("patch_large_fern");
             features.add("flower_default");
             features.add("patch_grass_taiga_2");
             features.add("brown_mushroom_taiga");
             features.add("red_mushroom_taiga");
             features.add("patch_berry_common");
+            features.add("patch_pumpkin");
+            features.add("patch_sugar_cane");
         }
     }
 
@@ -296,6 +346,10 @@ public class AgeBiome {
 
     public List<String> getFeatures() {
         return features;
+    }
+
+    public MysticalInkItem.MysticalInkColor getColor() {
+        return color;
     }
 
     public record LayersConfiguration(

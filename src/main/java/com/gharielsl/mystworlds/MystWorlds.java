@@ -23,10 +23,13 @@ import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Mod(MystWorlds.MOD_ID)
 public class MystWorlds {
     public static final String MOD_ID = "mystworlds";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public MystWorlds() {
         init(FMLJavaModLoadingContext.get().getModEventBus());
