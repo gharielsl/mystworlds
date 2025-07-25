@@ -1,0 +1,9 @@
+"Assets" referring to any file or folder under resources, including the javascript code used for making datapacks
+    are free to use and are considered public domain.
+"The program" referring to the java code in the project under the java folder or a derivative work made from it,
+    may not be used or distributed except for the following reason:
+    - You are porting the program to the fabric mod loader.
+    - You do not create new features unless they are absolutely necessary for the program to run on fabric.
+    - You follow the versioning on the original project.
+    - A fabric port does not exist yet.
+You may distribute derivative works only if they follow all the points above.
