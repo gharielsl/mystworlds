@@ -41,7 +41,14 @@ public class AgeDescription {
     public static final int SKY_GREEN = 4;
     public static final int SKY_CHAOS = 5;
 
+    public static final int GREATER_RUNE_WORLD_NONE = 0;
+    public static final int GREATER_RUNE_WORLD_SKYBLOCK = 1;
+    public static final int GREATER_RUNE_WORLD_SKYGRID = 2;
+    public static final int GREATER_RUNE_WORLD_FLAT = 3;
+    public static final int GREATER_RUNE_WORLD_VOID = 4;
+
     private String ageName;
+    private int fromGreaterRuneType = GREATER_RUNE_WORLD_NONE;
     private int sky = SKY_DEFAULT;
     private int weather = WEATHER_NORMAL;
     private int time = TIME_NORMAL;
@@ -87,6 +94,11 @@ public class AgeDescription {
         int rainWeatherCount = 0;
         int thunderWeatherCount = 0;
 
+        int flatGreaterRunesCount = 0;
+        int voidGreaterRunesCount = 0;
+        int skygridGreaterRunesCount = 0;
+        int skyblockGreaterRunesCount = 0;
+
         Map<Integer, Integer> skyColorScores = new java.util.HashMap<>(Map.of(
                 SKY_BLUE, 0,
                 SKY_RED, 0,
@@ -98,7 +110,18 @@ public class AgeDescription {
 
         List<AgeBiome.BaseBiome> baseBiomes = new ArrayList<>();
 
+        RandomSource random = RandomSource.create();
+
         for (RuneItem item : runes) {
+            if (item == MystWorldsItems.GREATER_RUNE_FLAT.get()) {
+                flatGreaterRunesCount++;
+            } else if (item == MystWorldsItems.GREATER_RUNE_VOID.get()) {
+                voidGreaterRunesCount++;
+            } else if (item == MystWorldsItems.GREATER_RUNE_SKYGRID.get()) {
+                skygridGreaterRunesCount++;
+            } else if (item == MystWorldsItems.GREATER_RUNE_SKYBLOCK.get()) {
+                skyblockGreaterRunesCount++;
+            }
             if (item == MystWorldsItems.RUNE_OF_THESSALY.get()) {
                 flatRunesCount++;
             } else if (item == MystWorldsItems.RUNE_OF_PETRA.get()) {
@@ -111,12 +134,21 @@ public class AgeDescription {
             } else if (item == MystWorldsItems.RUNE_OF_ARCADIA.get()) {
                 forestRunesCount++;
                 baseBiomes.add(AgeBiome.BaseBiome.FOREST);
+                if (random.nextBoolean()) {
+                    chaosRunesCount--;
+                }
             } else if (item == MystWorldsItems.RUNE_OF_SAYA.get()) {
                 forestRunesCount++;
                 baseBiomes.add(AgeBiome.BaseBiome.TAIGA);
             } else if (item == MystWorldsItems.RUNE_OF_MEMPHIS.get()) {
                 desertRunesCount++;
                 baseBiomes.add(AgeBiome.BaseBiome.DESERT);
+            } else if (item == MystWorldsItems.RUNE_OF_BORNEO.get()) {
+                forestRunesCount++;
+                baseBiomes.add(AgeBiome.BaseBiome.JUNGLE);
+            } else if (item == MystWorldsItems.RUNE_OF_HALLERBOS.get()) {
+                forestRunesCount++;
+                baseBiomes.add(AgeBiome.BaseBiome.DARK_FOREST);
             } else if (item == MystWorldsItems.RUNE_OF_OLYMPUS.get()) {
                 mountainRunesCount++;
             } else if (item == MystWorldsItems.RUNE_OF_LUXOR.get()) {
@@ -127,6 +159,9 @@ public class AgeDescription {
                 waterRunesCount++;
             }  else if (item == MystWorldsItems.RUNE_OF_STAFFA.get()) {
                 lavaRunesCount++;
+                if (random.nextBoolean()) {
+                    chaosRunesCount++;
+                }
             } else if (item == MystWorldsItems.RUNE_OF_ASWAN.get()) {
                 if (i < runes.size() / 2) {
                     bottomBedrockLayers++;
@@ -137,6 +172,9 @@ public class AgeDescription {
                 rainWeatherCount++;
             } else if (item == MystWorldsItems.RUNE_OF_RHODES.get()) {
                 clearWeatherCount++;
+                if (random.nextBoolean()) {
+                    chaosRunesCount--;
+                }
             } else if (item == MystWorldsItems.RUNE_OF_ARGOS.get()) {
                 thunderWeatherCount++;
             } else if (item == MystWorldsItems.RUNE_OF_NYX.get()) {
@@ -145,8 +183,14 @@ public class AgeDescription {
                 dayRunesCount++;
             } else if (item == MystWorldsItems.RUNE_OF_HADES.get()) {
                 chaosTimeRunesCount++;
+                if (random.nextBoolean()) {
+                    chaosRunesCount++;
+                }
             } else if (item == MystWorldsItems.RUNE_OF_ETNA.get()) {
                 fireAmount++;
+                if (random.nextBoolean()) {
+                    chaosRunesCount++;
+                }
             } else if (item == MystWorldsItems.RUNE_OF_THERA.get()) {
                 explosionAmount++;
                 chaosRunesCount++;
@@ -162,8 +206,6 @@ public class AgeDescription {
             }
             i++;
         }
-
-        RandomSource random = RandomSource.create();
 
         biome1 = new AgeBiome((!baseBiomes.isEmpty()) ? baseBiomes.get(0) : null, ink1);
         biome2 = new AgeBiome((1 < baseBiomes.size()) ? baseBiomes.get(1) : null, ink2);
@@ -237,8 +279,20 @@ public class AgeDescription {
         if (chaosAmount > 3 && random.nextBoolean()) {
             sky = SKY_CHAOS;
         }
-        if (chaosAmount == 1 && skyRunesCount == 0) {
+        if (chaosAmount <= 1 && skyRunesCount == 0) {
             sky = SKY_DEFAULT;
+        }
+        if (flatGreaterRunesCount > 0) {
+            fromGreaterRuneType = GREATER_RUNE_WORLD_FLAT;
+        }
+        if (voidGreaterRunesCount > 0) {
+            fromGreaterRuneType = GREATER_RUNE_WORLD_VOID;
+        }
+        if (skygridGreaterRunesCount > 0) {
+            fromGreaterRuneType = GREATER_RUNE_WORLD_SKYGRID;
+        }
+        if (skyblockGreaterRunesCount > 0) {
+            fromGreaterRuneType = GREATER_RUNE_WORLD_SKYBLOCK;
         }
     }
 
@@ -246,6 +300,7 @@ public class AgeDescription {
         CompoundTag tag = new CompoundTag();
 
         tag.putString("ageName", ageName);
+        tag.putInt("fromGreaterRuneType", fromGreaterRuneType);
         tag.putInt("sky", sky);
         tag.putInt("weather", weather);
         tag.putInt("time", time);
@@ -307,6 +362,7 @@ public class AgeDescription {
 
     public void load(CompoundTag tag) {
         ageName = tag.getString("ageName");
+        fromGreaterRuneType = tag.getInt("fromGreaterRuneType");
         sky = tag.getInt("sky");
         weather = tag.getInt("weather");
         time = tag.getInt("time");
@@ -332,6 +388,10 @@ public class AgeDescription {
 
     public String getAgeName() {
         return ageName;
+    }
+
+    public int getFromGreaterRuneType() {
+        return fromGreaterRuneType;
     }
 
     public int getSky() {

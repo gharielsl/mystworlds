@@ -1,9 +1,7 @@
 package com.gharielsl.mystworlds.world;
 
 import com.gharielsl.mystworlds.MystWorlds;
-import com.gharielsl.mystworlds.age.AgeBiome;
-import com.gharielsl.mystworlds.age.AgeDescription;
-import com.gharielsl.mystworlds.age.AgeManager;
+import com.gharielsl.mystworlds.age.*;
 import com.gharielsl.mystworlds.event.ServerEventsHandler;
 import com.gharielsl.mystworlds.mixin.ChunkGeneratorAccessor;
 import com.gharielsl.mystworlds.mixin.LevelChunkSectionAccessor;
@@ -20,8 +18,11 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureManager;
@@ -32,7 +33,10 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FeatureSorter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.*;
 import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.blending.Blender;
@@ -139,6 +143,60 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
         return 64;
     }
 
+    private CompletableFuture<ChunkAccess> fillVoid(ChunkAccess chunkAccess, Heightmap heightmap, Heightmap heightmap1, AgeBounds bounds) {
+        BlockPos center = bounds.center();
+
+        int chunkStartX = chunkAccess.getPos().getMinBlockX();
+        int chunkStartZ = chunkAccess.getPos().getMinBlockZ();
+        int chunkEndX = chunkAccess.getPos().getMaxBlockX();
+        int chunkEndZ = chunkAccess.getPos().getMaxBlockZ();
+
+        if (center.getX() >= chunkStartX && center.getX() <= chunkEndX &&
+                center.getZ() >= chunkStartZ && center.getZ() <= chunkEndZ) {
+
+            int localX = center.getX() & 15;
+            int localZ = center.getZ() & 15;
+            int y = 64;
+
+            chunkAccess.setBlockState(new BlockPos(localX, y, localZ), Blocks.GRASS_BLOCK.defaultBlockState(), false);
+
+            heightmap.update(localX, y, localZ, Blocks.GRASS_BLOCK.defaultBlockState());
+            heightmap1.update(localX, y, localZ, Blocks.GRASS_BLOCK.defaultBlockState());
+        }
+
+        return CompletableFuture.completedFuture(chunkAccess);
+    }
+
+    private CompletableFuture<ChunkAccess> fillSkyBlock(ChunkAccess chunkAccess, Heightmap heightmap, Heightmap heightmap1, AgeBounds bounds) {
+        BlockPos center = bounds.center();
+
+        int chunkStartX = chunkAccess.getPos().getMinBlockX();
+        int chunkStartZ = chunkAccess.getPos().getMinBlockZ();
+        int chunkEndX = chunkAccess.getPos().getMaxBlockX();
+        int chunkEndZ = chunkAccess.getPos().getMaxBlockZ();
+
+        int y = 64;
+
+        if (center.getX() >= chunkStartX && center.getX() <= chunkEndX &&
+                center.getZ() >= chunkStartZ && center.getZ() <= chunkEndZ) {
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    if ((x <= 5 && z <= 2) || (x <= 2 && z <= 4)) {
+                        chunkAccess.setBlockState(new BlockPos(x, y, z), Blocks.GRASS_BLOCK.defaultBlockState(), false);
+                        chunkAccess.setBlockState(new BlockPos(x, y - 1, z), Blocks.DIRT.defaultBlockState(), false);
+                        chunkAccess.setBlockState(new BlockPos(x, y - 2, z), Blocks.DIRT.defaultBlockState(), false);
+                    }
+//                    if (x == 0 && z == 4) {
+//                        chunkAccess.setBlockState(new BlockPos(x, y + 1, z), Blocks.OAK_SAPLING.defaultBlockState(), false);
+//                    }
+                }
+            }
+
+        }
+
+        return CompletableFuture.completedFuture(chunkAccess);
+    }
+
     private CompletableFuture<ChunkAccess> fillFlat(ChunkAccess chunkAccess, Heightmap heightmap, Heightmap heightmap1) {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
@@ -180,7 +238,9 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
         Holder<Biome> forestBiome = null;
         Holder<Biome> taigaBiome = null;
         Holder<Biome> snowyTaigaBiome = null;
-        
+        Holder<Biome> jungleBiome = null;
+        Holder<Biome> darkForestBiome = null;
+
 
         if (ServerEventsHandler.SERVER != null) {
             Registry<Biome> biomeRegistry = ServerEventsHandler.SERVER.registryAccess().registryOrThrow(Registries.BIOME);
@@ -190,6 +250,8 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
             try { forestBiome = biomeRegistry.getHolderOrThrow(Biomes.FOREST); } catch (Exception e) {}
             try { taigaBiome = biomeRegistry.getHolderOrThrow(Biomes.TAIGA); } catch (Exception e) {}
             try { snowyTaigaBiome = biomeRegistry.getHolderOrThrow(Biomes.SNOWY_TAIGA); } catch (Exception e) {}
+            try { jungleBiome = biomeRegistry.getHolderOrThrow(Biomes.JUNGLE); } catch (Exception e) {}
+            try { darkForestBiome = biomeRegistry.getHolderOrThrow(Biomes.DARK_FOREST); } catch (Exception e) {}
         }
 
         
@@ -204,20 +266,23 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
                 .findFirst()
                 .orElse(null);
 
-        
-
         AgeDescription description = null;
 
         if (matchingAgeState != null) {
             description = AgeManager.getDescription(matchingAgeState);
         }
 
-        
-
         if (description == null) {
-            
-
             return fillFlat(chunkAccess, heightmap, heightmap1);
+        }
+        if (description.getFromGreaterRuneType() == AgeDescription.GREATER_RUNE_WORLD_FLAT) {
+            return fillFlat(chunkAccess, heightmap, heightmap1);
+        }
+        if (description.getFromGreaterRuneType() == AgeDescription.GREATER_RUNE_WORLD_VOID) {
+            return fillVoid(chunkAccess, heightmap, heightmap1, AgeManager.ageStates.get(matchingAgeState).bounds());
+        }
+        if (description.getFromGreaterRuneType() == AgeDescription.GREATER_RUNE_WORLD_SKYBLOCK) {
+            return fillSkyBlock(chunkAccess, heightmap, heightmap1, AgeManager.ageStates.get(matchingAgeState).bounds());
         }
 
         Block liquid = description.isLava() ? Blocks.LAVA : Blocks.WATER;
@@ -273,6 +338,10 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
                             } else {
                                 setBiome(chunkAccess, pos, taigaBiome);
                             }
+                        } else if (baseBiome == AgeBiome.BaseBiome.JUNGLE && jungleBiome != null) {
+                            setBiome(chunkAccess, pos, jungleBiome);
+                        } else if (baseBiome == AgeBiome.BaseBiome.DARK_FOREST && darkForestBiome != null) {
+                            setBiome(chunkAccess, pos, darkForestBiome);
                         }
                     }
                     if (!description.isFloatingIslands() && combinedHeight < description.getLiquidY() && riverBiome != null && y < description.getLiquidY() + 12 && y > combinedHeight) {
@@ -345,8 +414,6 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
             }
         }
 
-        
-
         for (int x = 0; x < 16; ++x) {
             for (int z = 0; z < 16; ++z) {
                 int worldX = blockX + x;
@@ -357,6 +424,12 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
 
                 for (int y = chunkAccess.getMaxBuildHeight() - 1; y >= chunkAccess.getMinBuildHeight(); --y) {
                     pos.set(x, y, z);
+                    if (description.getFromGreaterRuneType() == AgeDescription.GREATER_RUNE_WORLD_SKYGRID) {
+                        if (worldX % 4 != 0 || worldZ % 4 != 0 || y % 4 != 0) {
+                            chunkAccess.setBlockState(pos, Blocks.AIR.defaultBlockState(), false);
+                            continue;
+                        }
+                    }
                     BlockState state = chunkAccess.getBlockState(pos);
                     BlockState stateAbove = chunkAccess.getBlockState(pos.above());
                     BlockState stateBelow = Blocks.AIR.defaultBlockState();
@@ -385,11 +458,10 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
                     if (y == chunkAccess.getMaxBuildHeight() - 1 && description.getTopBedrockLayers() > 0) {
                         chunkAccess.setBlockState(pos, Blocks.BEDROCK.defaultBlockState(), false);
                     }
+
                 }
             }
         }
-
-        
 
         return CompletableFuture.completedFuture(chunkAccess);
     }
@@ -397,6 +469,46 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
     @Override
     public void applyBiomeDecoration(WorldGenLevel p_223087_, ChunkAccess p_223088_, StructureManager p_223089_) {
         ChunkPos chunkpos = p_223088_.getPos();
+        int chunkStartX = chunkpos.getMinBlockX();
+        int chunkStartZ = chunkpos.getMinBlockZ();
+        int chunkEndX = chunkpos.getMaxBlockX();
+        int chunkEndZ = chunkpos.getMaxBlockZ();
+        String age = AgeManager.ageStates.entrySet().stream()
+                .filter(entry -> entry.getValue().bounds().isWithinBounds(chunkStartX, chunkStartZ))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+        if (age != null) {
+            AgeDescription description = AgeManager.getDescription(age);
+            AgeState state = AgeManager.ageStates.get(age);
+            if (description != null && state != null && description.getFromGreaterRuneType() == AgeDescription.GREATER_RUNE_WORLD_SKYBLOCK) {
+                BlockPos center = state.bounds().center();
+                if (center.getX() >= chunkStartX && center.getX() <= chunkEndX &&
+                        center.getZ() >= chunkStartZ && center.getZ() <= chunkEndZ) {
+                    Optional<Holder.Reference<PlacedFeature>> oakTreeHolder = p_223087_.registryAccess()
+                            .registryOrThrow(Registries.PLACED_FEATURE)
+                            .getHolder(ResourceKey.create(Registries.PLACED_FEATURE, new ResourceLocation("minecraft", "oak")));
+                    oakTreeHolder.ifPresent(placedFeatureReference -> placedFeatureReference.get().place(p_223087_, this, p_223087_.getRandom(), new BlockPos(chunkStartX, 65, chunkStartZ + 4)));
+
+                    BlockPos chestPos = new BlockPos(chunkStartX + 5, 65, chunkStartZ + 1);
+                    BlockState chestState = Blocks.CHEST.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST);
+                    p_223087_.setBlock(chestPos, chestState, 3);
+                    BlockEntity be = p_223087_.getBlockEntity(chestPos);
+                    if (be instanceof ChestBlockEntity chest) {
+                        chest.setItem(0, new ItemStack(Items.LAVA_BUCKET, 1));
+                        chest.setItem(1, new ItemStack(Items.ICE, 2));
+                        chest.setItem(2, new ItemStack(Items.MELON_SLICE, 1));
+                        chest.setItem(3, new ItemStack(Items.PUMPKIN_SEEDS, 1));
+                        chest.setItem(4, new ItemStack(Items.BROWN_MUSHROOM, 1));
+                        chest.setItem(5, new ItemStack(Items.RED_MUSHROOM, 1));
+                        chest.setItem(6, new ItemStack(Items.SUGAR_CANE, 1));
+                        chest.setItem(7, new ItemStack(Items.CACTUS, 1));
+                        chest.setItem(8, new ItemStack(Items.SAND, 10));
+                        chest.setChanged();
+                    }
+                }
+            }
+        }
         if (!SharedConstants.debugVoidTerrain(chunkpos)) {
             SectionPos sectionpos = SectionPos.of(chunkpos, p_223087_.getMinSection());
             BlockPos blockpos = sectionpos.origin();
@@ -466,11 +578,6 @@ public class MystWorldGenerator extends NoiseBasedChunkGenerator {
                         Arrays.sort(aint);
                         FeatureSorter.StepFeatureData featuresorter$stepfeaturedata = list.get(k);
 
-                        String age = AgeManager.ageStates.entrySet().stream()
-                                .filter(entry -> entry.getValue().bounds().isWithinBounds(blockpos.getX(), blockpos.getZ()))
-                                .map(Map.Entry::getKey)
-                                .findFirst()
-                                .orElse(null);
                         if (age == null) {
                             return;
                         }

@@ -29,8 +29,16 @@ public class DescriptionWritingFakeRecipe implements Recipe<SimpleContainer> {
             MystWorldsItems.BLACK_MYSTICAL_INK.get(),
             MystWorldsItems.WHITE_MYSTICAL_INK.get()
     );
+    public static final Ingredient INPUT_GREATER_RUNE = Ingredient.of(
+            MystWorldsItems.GREATER_RUNE_SKYBLOCK.get(),
+            MystWorldsItems.GREATER_RUNE_SKYGRID.get(),
+            MystWorldsItems.GREATER_RUNE_FLAT.get(),
+            MystWorldsItems.GREATER_RUNE_VOID.get()
+    );
     public static final Ingredient INPUT_RUNE = Ingredient.of(
             MystWorldsItems.RUNE_OF_ARCADIA.get(),
+            MystWorldsItems.RUNE_OF_BORNEO.get(),
+            MystWorldsItems.RUNE_OF_HALLERBOS.get(),
             MystWorldsItems.RUNE_OF_MEMPHIS.get(),
             MystWorldsItems.RUNE_OF_PHILAE.get(),
             MystWorldsItems.RUNE_OF_NAUCRATIS.get(),

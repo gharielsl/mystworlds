@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "mystworlds:terrain_rune"
+    },
+    {
+      "item": "mystworlds:stability_rune"
+    },
+    {
+      "item": "mystworlds:sky_rune"
+    },
+    {
+      "item": "mystworlds:time_rune"
+    }
+  ],
+  "result": {
+    "item": "mystworlds:greater_rune"
+  }
+}

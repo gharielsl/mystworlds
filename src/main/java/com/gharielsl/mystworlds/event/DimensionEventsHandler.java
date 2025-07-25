@@ -9,14 +9,17 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.io.IOException;
+
 @Mod.EventBusSubscriber
 public class DimensionEventsHandler {
     @SubscribeEvent
-    public static void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+    public static void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) throws IOException {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ResourceKey<Level> newDimension = player.level().dimension();
         if (!newDimension.equals(AgeManager.AGE_DIM_KEY)) {
-            AgeManager.players.put(player.getStringUUID(), "null");
+            AgeManager.players.put(player.getStringUUID(), null);
+            AgeManager.savePlayers();
         }
     }
 

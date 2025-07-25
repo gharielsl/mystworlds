@@ -53,11 +53,22 @@ public class RuneCarvingCategory implements IRecipeCategory<RuneCarvingFakeRecip
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RuneCarvingFakeRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 26, 22).addIngredients(RuneCarvingFakeRecipe.INPUT);
+        if (recipe.getId().getPath().equals("rune_carving_greater_rune")) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 26, 22).addIngredients(RuneCarvingFakeRecipe.GREATER_RUNE_INPUT);
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 22).addIngredients(RuneCarvingFakeRecipe.GREATER_RUNE_OUTPUT);
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 22).addIngredients(RuneCarvingFakeRecipe.OUTPUT_AMETHYST);
+        } else if (recipe.getId().getPath().equals("rune_carving_memory_stone")) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 26, 22).addIngredients(RuneCarvingFakeRecipe.MEMORY_STONE_INPUT);
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 22).addIngredients(RuneCarvingFakeRecipe.MEMORY_STONE_OUTPUT);
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 22).addIngredients(RuneCarvingFakeRecipe.OUTPUT_AMETHYST);
+        } else {
+            builder.addSlot(RecipeIngredientRole.INPUT, 26, 22).addIngredients(RuneCarvingFakeRecipe.INPUT);
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 22).addIngredients(RuneCarvingFakeRecipe.OUTPUT_RUNE);
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 22).addIngredients(RuneCarvingFakeRecipe.OUTPUT);
+        }
+
         builder.addSlot(RecipeIngredientRole.INPUT, 26, 48).addIngredients(RuneCarvingFakeRecipe.INPUT_AMETHYST);
 
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 22).addIngredients(RuneCarvingFakeRecipe.OUTPUT_RUNE);
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 22).addIngredients(RuneCarvingFakeRecipe.OUTPUT);
         builder.addSlot(RecipeIngredientRole.OUTPUT, 132, 22);
         builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 48);
         builder.addSlot(RecipeIngredientRole.OUTPUT, 106, 48);

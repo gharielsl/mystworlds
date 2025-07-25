@@ -37,6 +37,8 @@ public class MystWorldsItemGroups {
                         output.accept(MystWorldsItems.TIME_RUNE.get());
 
                         output.accept(MystWorldsItems.RUNE_OF_ARCADIA.get());
+                        output.accept(MystWorldsItems.RUNE_OF_BORNEO.get());
+                        output.accept(MystWorldsItems.RUNE_OF_HALLERBOS.get());
                         output.accept(MystWorldsItems.RUNE_OF_SAYA.get());
                         output.accept(MystWorldsItems.RUNE_OF_MEMPHIS.get());
                         output.accept(MystWorldsItems.RUNE_OF_PHILAE.get());
@@ -64,6 +66,13 @@ public class MystWorldsItemGroups {
                         output.accept(MystWorldsItems.RUNE_OF_HELIOPOLIS.get());
                         output.accept(MystWorldsItems.RUNE_OF_HADES.get());
 
+                        output.accept(MystWorldsItems.MEMORY_STONE.get());
+                        output.accept(MystWorldsItems.GREATER_RUNE.get());
+                        output.accept(MystWorldsItems.GREATER_RUNE_SKYBLOCK.get());
+                        output.accept(MystWorldsItems.GREATER_RUNE_SKYGRID.get());
+                        output.accept(MystWorldsItems.GREATER_RUNE_FLAT.get());
+                        output.accept(MystWorldsItems.GREATER_RUNE_VOID.get());
+
                         output.accept(MystWorldsItems.RED_MYSTICAL_INK.get());
                         output.accept(MystWorldsItems.BLUE_MYSTICAL_INK.get());
                         output.accept(MystWorldsItems.GREEN_MYSTICAL_INK.get());
@@ -73,8 +82,8 @@ public class MystWorldsItemGroups {
                         output.accept(MystWorldsItems.BROWN_MYSTICAL_INK.get());
                         output.accept(MystWorldsItems.BLACK_MYSTICAL_INK.get());
                         output.accept(MystWorldsItems.WHITE_MYSTICAL_INK.get());
+                        output.accept(MystWorldsItems.TRANSPARENT_MYSTICAL_INK.get());
 
-                        output.accept(MystWorldsItems.MEMORY_STONE.get());
                         // END OF ITEMS
                     }).build());
 }

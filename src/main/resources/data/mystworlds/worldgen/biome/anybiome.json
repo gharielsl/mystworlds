@@ -92,7 +92,14 @@
       "minecraft:patch_large_fern",
       "minecraft:patch_grass_taiga_2",
       "minecraft:brown_mushroom_taiga",
-      "minecraft:red_mushroom_taiga"
+      "minecraft:red_mushroom_taiga",
+      "minecraft:vines",
+      "minecraft:patch_melon",
+      "minecraft:bamboo_light",
+      "minecraft:trees_jungle",
+      "minecraft:flower_warm",
+      "minecraft:patch_grass_jungle",
+      "minecraft:dark_forest_vegetation"
     ],
     [
       "minecraft:freeze_top_layer"

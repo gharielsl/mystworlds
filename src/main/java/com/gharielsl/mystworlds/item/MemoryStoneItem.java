@@ -99,7 +99,7 @@ public class MemoryStoneItem extends Item {
         Minecraft mc = Minecraft.getInstance();
         String worldId;
         if (Minecraft.getInstance().getSingleplayerServer() != null) {
-            worldId = Minecraft.getInstance().getSingleplayerServer().getWorldPath(LevelResource.ROOT).getFileName().toString();
+            worldId = Minecraft.getInstance().getSingleplayerServer().getWorldPath(LevelResource.ROOT).getParent().getFileName().toString();
         } else if (Minecraft.getInstance().getCurrentServer() != null) {
             worldId = Minecraft.getInstance().getCurrentServer().ip;
         } else {
@@ -126,9 +126,9 @@ public class MemoryStoneItem extends Item {
         Minecraft mc = Minecraft.getInstance();
         String worldId;
         if (Minecraft.getInstance().getSingleplayerServer() != null) {
-            worldId = Minecraft.getInstance().getSingleplayerServer().getWorldPath(LevelResource.ROOT).getFileName().toString();
+            worldId = Minecraft.getInstance().getSingleplayerServer().getWorldPath(LevelResource.ROOT).getParent().getFileName().toString();
         } else if (Minecraft.getInstance().getCurrentServer() != null) {
-            worldId = Minecraft.getInstance().getCurrentServer().ip;
+            worldId = Minecraft.getInstance().getCurrentServer().ip.replaceAll("[^a-zA-Z0-9-_.]", "_");
         } else {
             return null;
         }

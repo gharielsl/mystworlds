@@ -1,14 +1,9 @@
 package com.gharielsl.mystworlds.mixin;
 
 import com.gharielsl.mystworlds.age.AgeBounds;
-import com.gharielsl.mystworlds.age.AgeDescription;
 import com.gharielsl.mystworlds.age.AgeManager;
-import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
-import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.Vec3;
@@ -28,37 +23,37 @@ public abstract class ServerPlayerMixin {
     @Shadow public abstract boolean hasDisconnected();
 
     @Unique
-    private Vec3 previousPos;
+    private Vec3 mystWorlds_Forge1_20_1_$previousPos;
     @Unique
-    private String previousAge;
+    private String mystWorlds_Forge1_20_1_$previousAge;
     @Unique
-    private boolean sentPackets = false;
+    private boolean mystWorlds_Forge1_20_1_$sentPackets = false;
 
     @Inject(method = "tick", at = @At("RETURN"))
     private void onTick(CallbackInfo ci) throws IOException {
         ServerPlayer player = (ServerPlayer) (Object) this;
         if (player.hasDisconnected()) {
-            sentPackets = false;
+            mystWorlds_Forge1_20_1_$sentPackets = false;
         }
         Level level = player.level();
         if (!level.dimension().equals(AgeManager.AGE_DIM_KEY)) {
-            if (!Objects.equals(AgeManager.players.get(player.getStringUUID()), null) && AgeManager.ready) {
+            if (!AgeManager.isPlayerAgeNull(AgeManager.players.get(player.getStringUUID())) && AgeManager.ready) {
                 AgeManager.players.put(player.getStringUUID(), null);
                 AgeManager.savePlayers();
             }
         } else {
-            if (isWithinBounds()) {
+            if (mystWorlds_Forge1_20_1_$isWithinBounds()) {
                 if (AgeManager.players != null) {
-                    if (!sentPackets || !Objects.equals(AgeManager.players.get(player.getStringUUID()), previousAge)) {
-                        sendClientBorder();
-                        sentPackets = true;
+                    if (!mystWorlds_Forge1_20_1_$sentPackets || !Objects.equals(AgeManager.players.get(player.getStringUUID()), mystWorlds_Forge1_20_1_$previousAge)) {
+                        mystWorlds_Forge1_20_1_$sendClientBorder();
+                        mystWorlds_Forge1_20_1_$sentPackets = true;
                     }
-                    previousAge = AgeManager.players.get(player.getStringUUID());
+                    mystWorlds_Forge1_20_1_$previousAge = AgeManager.players.get(player.getStringUUID());
                 }
-                previousPos = player.position();
+                mystWorlds_Forge1_20_1_$previousPos = player.position();
             } else {
-                if (previousPos != null && getBounds() != null && getBounds().isWithinBounds((int)previousPos.x, (int)previousPos.z)) {
-                    player.teleportTo(previousPos.x, previousPos.y, previousPos.z);
+                if (mystWorlds_Forge1_20_1_$previousPos != null && mystWorlds_Forge1_20_1_$getBounds() != null && mystWorlds_Forge1_20_1_$getBounds().isWithinBounds((int) mystWorlds_Forge1_20_1_$previousPos.x, (int) mystWorlds_Forge1_20_1_$previousPos.z)) {
+                    player.teleportTo(mystWorlds_Forge1_20_1_$previousPos.x, mystWorlds_Forge1_20_1_$previousPos.y, mystWorlds_Forge1_20_1_$previousPos.z);
                 } else {
                     String currentAge = AgeManager.ageStates.entrySet().stream()
                             .filter(entry -> entry.getValue().bounds().isWithinBounds(player.getBlockX(), player.getBlockZ()))
@@ -73,7 +68,7 @@ public abstract class ServerPlayerMixin {
     }
 
     @Unique
-    private AgeBounds getBounds() {
+    private AgeBounds mystWorlds_Forge1_20_1_$getBounds() {
         ServerPlayer player = (ServerPlayer) (Object) this;
         if (AgeManager.players == null) return null;
         String age = AgeManager.players.get(player.getStringUUID());
@@ -83,9 +78,9 @@ public abstract class ServerPlayerMixin {
     }
 
     @Unique
-    private void sendClientBorder() {
+    private void mystWorlds_Forge1_20_1_$sendClientBorder() {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        AgeBounds area = getBounds();
+        AgeBounds area = mystWorlds_Forge1_20_1_$getBounds();
         if (area == null) {
             return;
         }
@@ -102,9 +97,9 @@ public abstract class ServerPlayerMixin {
     }
 
     @Unique
-    private boolean isWithinBounds() {
+    private boolean mystWorlds_Forge1_20_1_$isWithinBounds() {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        AgeBounds area = getBounds();
+        AgeBounds area = mystWorlds_Forge1_20_1_$getBounds();
         if (area == null) {
             return true;
         }

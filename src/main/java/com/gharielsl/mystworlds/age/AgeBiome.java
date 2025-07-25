@@ -83,13 +83,19 @@ public class AgeBiome {
     }
 
     private void setupLayers(@Nullable MysticalInkItem.MysticalInkColor color) {
-        if (color == null) {
-            layers.layer1().add(Blocks.GRASS_BLOCK);
-            layers.layer2().add(Blocks.DIRT);
+        if (color == null || color == MysticalInkItem.MysticalInkColor.TRANSPARENT) {
+            if (baseBiome == BaseBiome.DESERT) {
+                layers.layer1().add(Blocks.SAND);
+                layers.layer2().add(Blocks.SANDSTONE);
+            } else {
+                layers.layer1().add(Blocks.GRASS_BLOCK);
+                layers.layer2().add(Blocks.DIRT);
+            }
             layers.layer3().add(Blocks.STONE);
             layers.layer4().add(Blocks.DEEPSLATE);
             return;
         }
+        final boolean isForest = baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA || baseBiome == BaseBiome.JUNGLE || baseBiome == BaseBiome.DARK_FOREST;
         switch (color) {
             case RED -> {
                 if (baseBiome == BaseBiome.DESERT) {
@@ -104,7 +110,7 @@ public class AgeBiome {
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.NETHERRACK);
                     layers.layer4().add(Blocks.DEEPSLATE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.NETHERRACK);
@@ -122,7 +128,7 @@ public class AgeBiome {
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.STONE);
                     layers.layer4().add(Blocks.POLISHED_DEEPSLATE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.PACKED_ICE);
@@ -142,7 +148,7 @@ public class AgeBiome {
                     layers.layer3().add(Blocks.MOSSY_COBBLESTONE);
                     layers.layer3().add(Blocks.STONE);
                     layers.layer4().add(Blocks.DEEPSLATE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer1().add(Blocks.MOSS_BLOCK);
                     layers.layer2().add(Blocks.DIRT);
@@ -162,7 +168,7 @@ public class AgeBiome {
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.PURPUR_BLOCK);
                     layers.layer4().add(Blocks.POLISHED_DEEPSLATE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.END_STONE);
@@ -180,7 +186,7 @@ public class AgeBiome {
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.END_STONE);
                     layers.layer4().add(Blocks.DEEPSLATE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.SANDSTONE);
@@ -198,7 +204,7 @@ public class AgeBiome {
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.GRANITE);
                     layers.layer4().add(Blocks.POLISHED_DEEPSLATE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.ORANGE_CONCRETE);
@@ -216,7 +222,7 @@ public class AgeBiome {
                     layers.layer2().add(Blocks.PODZOL);
                     layers.layer3().add(Blocks.MUD_BRICKS);
                     layers.layer4().add(Blocks.DEEPSLATE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer1().add(Blocks.COARSE_DIRT);
                     layers.layer2().add(Blocks.COARSE_DIRT);
@@ -235,7 +241,7 @@ public class AgeBiome {
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.BASALT);
                     layers.layer4().add(Blocks.BLACKSTONE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer2().add(Blocks.MUD);
                     layers.layer3().add(Blocks.BASALT);
@@ -255,7 +261,7 @@ public class AgeBiome {
                     layers.layer3().add(Blocks.CALCITE);
                     layers.layer3().add(Blocks.DIORITE);
                     layers.layer4().add(Blocks.POLISHED_DEEPSLATE);
-                } else if (baseBiome == BaseBiome.FOREST || baseBiome == BaseBiome.TAIGA) {
+                } else if (isForest) {
                     layers.layer1().add(Blocks.GRASS_BLOCK);
                     layers.layer2().add(Blocks.DIRT);
                     layers.layer3().add(Blocks.CALCITE);
@@ -333,6 +339,27 @@ public class AgeBiome {
             features.add("patch_berry_common");
             features.add("patch_pumpkin");
             features.add("patch_sugar_cane");
+        } else if (baseBiome == BaseBiome.JUNGLE) {
+            features.add("brown_mushroom_normal");
+            features.add("red_mushroom_normal");
+            features.add("patch_pumpkin");
+            features.add("patch_sugar_cane");
+            features.add("patch_firefly_bush_near_water");
+            features.add("flower_warm");
+            features.add("vines");
+            features.add("trees_jungle");
+            features.add("bamboo_light");
+            features.add("patch_grass_jungle");
+        } else if (baseBiome == BaseBiome.DARK_FOREST) {
+            features.add("dark_forest_vegetation");
+            features.add("forest_flowers");
+            features.add("patch_grass_forest");
+            features.add("brown_mushroom_normal");
+            features.add("red_mushroom_normal");
+            features.add("patch_leaf_litter");
+            features.add("patch_pumpkin");
+            features.add("patch_sugar_cane");
+            features.add("patch_firefly_bush_near_water");
         }
     }
 
@@ -438,5 +465,5 @@ public class AgeBiome {
         }
     }
 
-    public enum BaseBiome { DESERT, FOREST, PLAINS, TAIGA }
+    public enum BaseBiome { DESERT, FOREST, PLAINS, TAIGA, JUNGLE, DARK_FOREST }
 }

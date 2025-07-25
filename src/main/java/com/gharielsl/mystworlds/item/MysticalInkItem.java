@@ -25,8 +25,9 @@ public class MysticalInkItem extends Item {
             case BROWN -> 0x8B4513;
             case BLACK -> 0x000000;
             case WHITE -> 0xFFFFFF;
+            case TRANSPARENT -> -1;
         };
     }
 
-    public enum MysticalInkColor { RED, BLUE, GREEN, PURPLE, YELLOW, ORANGE, BROWN, BLACK, WHITE }
+    public enum MysticalInkColor { RED, BLUE, GREEN, PURPLE, YELLOW, ORANGE, BROWN, BLACK, WHITE, TRANSPARENT }
 }

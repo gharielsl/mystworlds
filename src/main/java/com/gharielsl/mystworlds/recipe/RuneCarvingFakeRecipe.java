@@ -18,9 +18,25 @@ import org.jetbrains.annotations.Nullable;
 public class RuneCarvingFakeRecipe implements Recipe<SimpleContainer> {
     public static final Ingredient INPUT = Ingredient.of(MystWorldsItems.TERRAIN_RUNE.get(), MystWorldsItems.STABILITY_RUNE.get(), MystWorldsItems.SKY_RUNE.get(), MystWorldsItems.TIME_RUNE.get());
     public static final Ingredient INPUT_AMETHYST = Ingredient.of(Items.AMETHYST_SHARD);
+    public static final Ingredient OUTPUT_AMETHYST = Ingredient.of(Items.AMETHYST_SHARD, Items.AIR);
     public static final Ingredient OUTPUT = Ingredient.of(Items.LAPIS_LAZULI, Items.REDSTONE);
+    public static final Ingredient GREATER_RUNE_INPUT = Ingredient.of(MystWorldsItems.GREATER_RUNE.get());
+    public static final Ingredient GREATER_RUNE_OUTPUT = Ingredient.of(
+            MystWorldsItems.GREATER_RUNE_SKYBLOCK.get(),
+            MystWorldsItems.GREATER_RUNE_SKYGRID.get(),
+            MystWorldsItems.GREATER_RUNE_FLAT.get(),
+            MystWorldsItems.GREATER_RUNE_VOID.get(),
+            MystWorldsItems.TERRAIN_RUNE.get(),
+            MystWorldsItems.STABILITY_RUNE.get(),
+            MystWorldsItems.SKY_RUNE.get(),
+            MystWorldsItems.TIME_RUNE.get()
+    );
+    public static final Ingredient MEMORY_STONE_INPUT = Ingredient.of(MystWorldsItems.MEMORY_STONE.get());
+    public static final Ingredient MEMORY_STONE_OUTPUT = Ingredient.of(MystWorldsItems.GREATER_RUNE.get(), Items.AIR);
     public static final Ingredient OUTPUT_RUNE = Ingredient.of(
             MystWorldsItems.RUNE_OF_ARCADIA.get(),
+            MystWorldsItems.RUNE_OF_BORNEO.get(),
+            MystWorldsItems.RUNE_OF_HALLERBOS.get(),
             MystWorldsItems.RUNE_OF_MEMPHIS.get(),
             MystWorldsItems.RUNE_OF_PHILAE.get(),
             MystWorldsItems.RUNE_OF_NAUCRATIS.get(),
@@ -117,6 +133,11 @@ public class RuneCarvingFakeRecipe implements Recipe<SimpleContainer> {
 
         @Override
         public @NotNull RuneCarvingFakeRecipe fromJson(ResourceLocation recipeId, JsonObject serializedRecipe) {
+            if (recipeId.getPath().equals("rune_carving_greater_rune")) {
+                return new RuneCarvingFakeRecipe(NonNullList.of(GREATER_RUNE_INPUT), new ItemStack(Items.STICK), recipeId);
+            } else if (recipeId.getPath().equals("rune_carving_memory_stone")) {
+                return new RuneCarvingFakeRecipe(NonNullList.of(MEMORY_STONE_INPUT), new ItemStack(Items.STICK), recipeId);
+            }
             return new RuneCarvingFakeRecipe(NonNullList.of(INPUT), new ItemStack(Items.STICK), recipeId);
         }
 

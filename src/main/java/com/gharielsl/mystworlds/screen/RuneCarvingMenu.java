@@ -2,6 +2,7 @@ package com.gharielsl.mystworlds.screen;
 
 import com.gharielsl.mystworlds.block.MystWorldsBlocks;
 import com.gharielsl.mystworlds.block.entity.RuneCarvingStationBlockEntity;
+import com.gharielsl.mystworlds.item.GreaterRuneItem;
 import com.gharielsl.mystworlds.item.MystWorldsItems;
 import com.gharielsl.mystworlds.item.RuneItem;
 import com.gharielsl.mystworlds.item.UncarvedRuneItem;
@@ -11,6 +12,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -19,6 +21,8 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class RuneCarvingMenu extends AbstractContainerMenu {
     public final RuneCarvingStationBlockEntity blockEntity;
@@ -121,12 +125,40 @@ public class RuneCarvingMenu extends AbstractContainerMenu {
     public void startCrafting() {
         while (validateCrafting()) {
             ItemStack uncarvedRune = blockEntity.itemHandler.getStackInSlot(0);
+            ItemStack[] result = new ItemStack[2];
             if (!(uncarvedRune.getItem() instanceof UncarvedRuneItem uncarvedRuneItem)) {
-                return;
+                if (uncarvedRune.getItem() == MystWorldsItems.GREATER_RUNE.get()) {
+                    List<Item> optionsUncarved = List.of(
+                            MystWorldsItems.TERRAIN_RUNE.get(),
+                            MystWorldsItems.SKY_RUNE.get(),
+                            MystWorldsItems.STABILITY_RUNE.get(),
+                            MystWorldsItems.TIME_RUNE.get());
+                    List<Item> rareRunes = List.of(
+                            MystWorldsItems.GREATER_RUNE_FLAT.get(),
+                            MystWorldsItems.GREATER_RUNE_SKYBLOCK.get(),
+                            MystWorldsItems.GREATER_RUNE_SKYGRID.get(),
+                            MystWorldsItems.GREATER_RUNE_VOID.get());
+                    if (level.random.nextInt(2) == 0) {
+                        result[0] = new ItemStack(optionsUncarved.get(level.random.nextInt(optionsUncarved.size())));
+                    } else {
+                        result[0] = new ItemStack(rareRunes.get(level.random.nextInt(rareRunes.size())));
+                    }
+                    result[1] = new ItemStack(Items.AMETHYST_SHARD, level.random.nextInt(4));
+                } else if (uncarvedRune.getItem() == MystWorldsItems.MEMORY_STONE.get()) {
+                    if (level.random.nextInt(12) == 0) {
+                        result[0] = new ItemStack(MystWorldsItems.GREATER_RUNE.get());
+                    } else {
+                        result[0] = new ItemStack(Items.AIR);
+                    }
+                    result[1] = new ItemStack(Items.AMETHYST_SHARD, level.random.nextInt(2));
+                } else {
+                    return;
+                }
+            } else {
+                result = uncarvedRuneItem.carveRandom(level.random);
             }
             uncarvedRune.shrink(1);
             blockEntity.itemHandler.getStackInSlot(1).shrink(1);
-            ItemStack[] result = uncarvedRuneItem.carveRandom(level.random);
             moveItemStackTo(result[0], CONTAINER_FIRST_INDEX + 2, CONTAINER_FIRST_INDEX + 8, false);
             moveItemStackTo(result[1], CONTAINER_FIRST_INDEX + 2, CONTAINER_FIRST_INDEX + 8, false);
         }
@@ -146,7 +178,9 @@ public class RuneCarvingMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(@NotNull ItemStack stack) {
-            return stack.getItem() instanceof UncarvedRuneItem;
+            return stack.getItem() instanceof UncarvedRuneItem ||
+                    stack.is(MystWorldsItems.GREATER_RUNE.get()) ||
+                    stack.is(MystWorldsItems.MEMORY_STONE.get());
         }
     }
 
@@ -168,7 +202,14 @@ public class RuneCarvingMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(@NotNull ItemStack stack) {
-            return stack.getItem() instanceof RuneItem || stack.is(MystWorldsItems.MEMORY_STONE.get()) || stack.is(Items.REDSTONE) || stack.is(Items.LAPIS_LAZULI);
+            return stack.getItem() instanceof RuneItem ||
+                    stack.is(MystWorldsItems.MEMORY_STONE.get()) ||
+                    stack.is(Items.REDSTONE) ||
+                    stack.is(Items.LAPIS_LAZULI) ||
+                    stack.is(Items.AMETHYST_SHARD) ||
+                    stack.is(MystWorldsItems.GREATER_RUNE.get()) ||
+                    stack.getItem() instanceof GreaterRuneItem ||
+                    stack.getItem() instanceof UncarvedRuneItem;
         }
     }
 }

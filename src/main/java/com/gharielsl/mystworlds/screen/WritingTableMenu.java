@@ -4,10 +4,7 @@ import com.gharielsl.mystworlds.age.AgeDescription;
 import com.gharielsl.mystworlds.age.AgeManager;
 import com.gharielsl.mystworlds.block.MystWorldsBlocks;
 import com.gharielsl.mystworlds.block.entity.WritingTableBlockEntity;
-import com.gharielsl.mystworlds.item.DescriptionItem;
-import com.gharielsl.mystworlds.item.MystWorldsItems;
-import com.gharielsl.mystworlds.item.MysticalInkItem;
-import com.gharielsl.mystworlds.item.RuneItem;
+import com.gharielsl.mystworlds.item.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -44,6 +41,7 @@ public class WritingTableMenu extends AbstractContainerMenu {
         super(MystWorldsMenus.WRITING_TABLE_MENU.get(), containerId);
         checkContainerSize(inventory, 6 + 3 * 6);
         blockEntity = ((WritingTableBlockEntity) be);
+        blockEntity.setCurrentPage(0);
         level = inventory.player.level();
 
         addPlayerInventory(inventory);
@@ -184,6 +182,15 @@ public class WritingTableMenu extends AbstractContainerMenu {
         if (title.isEmpty()) {
             return "Enter a title";
         }
+        if (title.equals("null")) {
+            return "That's still an issue, choose a different name";
+        }
+        if (title.length() > 24) {
+            return "That's too long";
+        }
+        if (AgeManager.ageStates.size() > 2000) {
+            return "You already have 2000 ages, that's enough!";
+        }
         for (char c : title.toCharArray()) {
             if (!Character.isLetterOrDigit(c)) {
                 return "Invalid title";
@@ -211,12 +218,16 @@ public class WritingTableMenu extends AbstractContainerMenu {
             return "Age with this name already exists";
         }
         int runeCount = 0;
+        int greaterRunes = 0;
         for (int i = 6; i < 6 + 6 * 3; i++) {
             if (!blockEntity.itemHandler.getStackInSlot(i).isEmpty()) {
                 runeCount++;
             }
+            if (blockEntity.itemHandler.getStackInSlot(i).getItem() instanceof GreaterRuneItem) {
+                greaterRunes++;
+            }
         }
-        if (runeCount < 3) {
+        if (runeCount < 3 && greaterRunes == 0) {
             return "Must place at least 3 runes";
         }
         return null;

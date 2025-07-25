@@ -45,7 +45,7 @@ public class BiomeMixin {
             return;
         }
         AgeBiome ageBiome = description.getBiome(MystWorldGenerator.getBiome((int) x, (int) z));
-        if (ageBiome.getColor() == null) {
+        if (ageBiome.getColor() == null || ageBiome.getColor() == MysticalInkItem.MysticalInkColor.TRANSPARENT) {
             return;
         }
 

@@ -102,6 +102,8 @@ tasks.named('jar', Jar).configure {
                 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
+
+    exclude('**/generator/**')
     
     finalizedBy 'reobfJar'
 }

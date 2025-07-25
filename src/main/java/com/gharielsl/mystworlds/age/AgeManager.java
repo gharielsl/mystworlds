@@ -33,7 +33,7 @@ public class AgeManager {
     public static boolean ready = false;
     public static Path saveFileAge;
     public static Path saveFilePlayers;
-    private static final int WORLD_SIZE = 30000000;
+    private static final int WORLD_SIZE = 50000000;
     private static final int AGE_AREA_X = 1000000;
     private static final int AGE_AREA_Z = 1000000;
 
@@ -50,6 +50,10 @@ public class AgeManager {
     public static Map<String, String> players = new HashMap<>();
     private static Map<String, AgeDescription> descriptions = new HashMap<>();
     public static Set<String> playersAllowedTravel = new HashSet<>();
+
+    public static boolean isPlayerAgeNull(String playerAge) {
+        return playerAge == null || playerAge.isEmpty() || playerAge.equals("null");
+    }
 
     public static void allocateNextArea(String name) throws IOException {
         int spacing = 10000;
@@ -88,14 +92,33 @@ public class AgeManager {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-//        dispatcher.register(Commands.literal("gendim")
-//                .then(Commands.argument("name", StringArgumentType.word())
-//                        .executes(context -> {
-//                            String name = StringArgumentType.getString(context, "name");
-//                            return execute(context.getSource(), name);
-//                        })));
+        dispatcher.register(Commands.literal("age-tp")
+                .requires(source -> source.hasPermission(2))
+                .then(Commands.argument("name", StringArgumentType.word())
+                        .executes(context -> {
+                            String name = StringArgumentType.getString(context, "name");
+                            if (!ageStates.containsKey(name)) {
+                                context.getSource().sendSystemMessage(Component.literal("Age " + name + " does not exist"));
+                                return 0;
+                            }
+                            return execute(context.getSource(), name);
+                        })));
 
-        dispatcher.register(Commands.literal("age")
+        dispatcher.register(Commands.literal("age-list")
+                .executes(context -> {
+                    StringBuilder result = new StringBuilder();
+                    for (String age : ageStates.keySet()) {
+                        result.append("- ").append(age).append("\n");
+                    }
+                    if (result.isEmpty()) {
+                        result = new StringBuilder("No ages yet");
+                    }
+                    context.getSource().sendSystemMessage(Component.literal("Ages: "));
+                    context.getSource().sendSystemMessage(Component.literal(result.toString()));
+                    return 1;
+                }));
+
+        dispatcher.register(Commands.literal("age-info")
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayer();
                             try {
@@ -109,9 +132,10 @@ public class AgeManager {
 
                             String message = "age: ";
                             String dim = players.get(player.getStringUUID());
+                            if (dim.equals("null")) dim = null;
                             message += dim + ", " + ageStates.get(dim);
 
-                            String finalMessage = message;
+                            String finalMessage = dim != null ? message : player.level().dimension().location().toString();
                             context.getSource().sendSuccess(() -> Component.literal(finalMessage), true);
                             return 1;
                         }));

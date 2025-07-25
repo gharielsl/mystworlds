@@ -63,11 +63,20 @@ public class DescriptionWritingCategory implements IRecipeCategory<DescriptionWr
         builder.addSlot(RecipeIngredientRole.INPUT, 134, 95).addIngredients(DescriptionWritingFakeRecipe.INPUT_INK);
         builder.addSlot(RecipeIngredientRole.INPUT, 152, 95).addIngredients(DescriptionWritingFakeRecipe.INPUT_INK);
 
-        builder.addSlot(RecipeIngredientRole.INPUT, 8, 27).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
-        builder.addSlot(RecipeIngredientRole.INPUT, 8, 45).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
-        builder.addSlot(RecipeIngredientRole.INPUT, 8, 63).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
-        builder.addSlot(RecipeIngredientRole.INPUT, 152, 27).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
-        builder.addSlot(RecipeIngredientRole.INPUT, 152, 45).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
-        builder.addSlot(RecipeIngredientRole.INPUT, 152, 63).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
+        if (recipe.getId().getPath().equals("linked_description_from_greater_rune")) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 8, 27).addIngredients(DescriptionWritingFakeRecipe.INPUT_GREATER_RUNE);
+            builder.addSlot(RecipeIngredientRole.INPUT, 8, 45);
+            builder.addSlot(RecipeIngredientRole.INPUT, 8, 63);
+            builder.addSlot(RecipeIngredientRole.INPUT, 152, 27);
+            builder.addSlot(RecipeIngredientRole.INPUT, 152, 45);
+            builder.addSlot(RecipeIngredientRole.INPUT, 152, 63);
+        } else {
+            builder.addSlot(RecipeIngredientRole.INPUT, 8, 27).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
+            builder.addSlot(RecipeIngredientRole.INPUT, 8, 45).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
+            builder.addSlot(RecipeIngredientRole.INPUT, 8, 63).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
+            builder.addSlot(RecipeIngredientRole.INPUT, 152, 27).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
+            builder.addSlot(RecipeIngredientRole.INPUT, 152, 45).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
+            builder.addSlot(RecipeIngredientRole.INPUT, 152, 63).addIngredients(DescriptionWritingFakeRecipe.INPUT_RUNE);
+        }
     }
 }
