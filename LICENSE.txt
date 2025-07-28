@@ -1,4 +1,4 @@
-"Assets" referring to any file or folder under resources, including the javascript code used for making datapacks
+"Assets" referring to any file or folder under resources, including the javascript code used for making datapacks and excluding the book ui
     are free to use and are considered public domain.
 "The program" referring to the java code in the project under the java folder or a derivative work made from it,
     may not be used or distributed except for the following reason:
